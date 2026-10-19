@@ -38,6 +38,7 @@ Get the latest version from the [**Releases page**](https://github.com/RaulDevSt
 | File | What it is |
 | --- | --- |
 | `ShellFlow-<version>-x64.msi` | **Installer (recommended).** Per-user, no admin rights. Adds the Start menu entry, "Open ShellFlow here" in Explorer and `shellflow` in Win+R. |
+| `ShellFlow-<version>-x64-installer.zip` | The same installer packed in a zip, for browsers or mail that block `.msi` downloads. |
 | `ShellFlow-<version>-win-x64-portable.zip` | Portable single executable. Unzip anywhere and run `ShellFlow.exe` (keep that file name). |
 | `SHA256SUMS.txt` | Checksums to verify the downloads. |
 
