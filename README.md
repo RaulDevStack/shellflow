@@ -17,7 +17,7 @@
   <a href="https://github.com/RaulDevStack/shellflow/releases/latest"><b>Download for Windows</b></a> ·
   <a href="#features">Features</a> ·
   <a href="#keyboard-shortcuts">Shortcuts</a> ·
-  <a href="docs/ARCHITECTURE.md">Architecture</a>
+  <a href="#architecture">Architecture</a>
 </p>
 
 ShellFlow is a modern, open-source terminal for Windows. It combines the multi-pane workflow of terminal
@@ -26,11 +26,10 @@ xterm.js rendering, nested split panes, a command palette, a folder picker for `
 Hyprland-style motion — in a calm dark design.
 
 <p align="center">
-  <img src="docs/images/split-panes.png" alt="ShellFlow with three PowerShell panes side by side and stacked" width="900">
+  <img src=".github/images/split-panes.png" alt="ShellFlow with three PowerShell panes side by side and stacked" width="900">
 </p>
 
-> **Status: early preview (0.1).** The core terminal, tabs, splits, palette, settings and installer work and are
-> covered by tests. See [Known limitations](#known-limitations) before relying on it daily.
+> **Status: early preview (0.1).** The core terminal, tabs, splits, palette, settings and installer work. See [Known limitations](#known-limitations) before relying on it daily.
 
 ## Download
 
@@ -63,7 +62,7 @@ Get the latest version from the [**Releases page**](https://github.com/RaulDevSt
 - **Clean start.** ShellFlow always opens with a single terminal; layouts from the previous session are not restored.
 - **Workspaces.** Named sets of tabs and layouts you can save and switch between during a session.
 - **Safe by default.** Confirmation before stopping running commands, multi-line paste warning, graceful process
-  cleanup, recovery from corrupted settings, and a locked-down renderer ([security model](docs/SECURITY.md)).
+  cleanup, recovery from corrupted settings, and a locked-down renderer (see [Security](#security)).
 - **Designed for flow.** Dark and light themes, four pastel accents, keyboard-first everything.
 - **Hyprland-style motion.** Panes pop in, layouts glide into place with a soft overshoot, tabs slide like workspaces
   and the active pane gets a gradient border. Runs on the compositor so it never slows typing; switch to *Subtle* or turn
@@ -73,11 +72,11 @@ Get the latest version from the [**Releases page**](https://github.com/RaulDevSt
 
 | Command palette | cd folder picker |
 | --- | --- |
-| <img src="docs/images/command-palette.png" alt="Command palette filtering split commands" width="440"> | <img src="docs/images/cd-picker.png" alt="Folder picker listing project folders after typing cd and Tab" width="440"> |
+| <img src=".github/images/command-palette.png" alt="Command palette filtering split commands" width="440"> | <img src=".github/images/cd-picker.png" alt="Folder picker listing project folders after typing cd and Tab" width="440"> |
 
 | Settings | |
 | --- | --- |
-| <img src="docs/images/settings.png" alt="Appearance settings with theme, accent and animation style" width="440"> | |
+| <img src=".github/images/settings.png" alt="Appearance settings with theme, accent and animation style" width="440"> | |
 
 ## Keyboard shortcuts
 
@@ -97,7 +96,7 @@ Get the latest version from the [**Releases page**](https://github.com/RaulDevSt
 | Settings / shortcut list | `Ctrl+,` / `Ctrl+Shift+/` |
 | Switch workspace | `Ctrl+Shift+K` |
 
-Shortcuts can be changed in `settings.json` (`keyBindings`, see [settings.example.json](docs/settings.example.json)).
+Shortcuts can be changed in `settings.json` (`keyBindings`, see [Configuration](#configuration)).
 
 ## Requirements
 
@@ -139,7 +138,7 @@ Prerequisites:
 - [.NET SDK 10.0](https://dotnet.microsoft.com/download) (the repo pins `10.0.100` with roll-forward in `global.json`)
 - Windows 10 2004+ / Windows 11. Visual Studio 2022/2026 with the *WinUI application development* workload is
   optional — everything builds with the .NET CLI.
-- Node.js is **not** required (xterm.js is vendored); it is only needed to update xterm.js (`web/`).
+- Node.js is **not** required: xterm.js and its addons are vendored in `src/ShellFlow.TerminalHost/Assets/terminal/vendor`.
 
 ```powershell
 git clone https://github.com/RaulDevStack/shellflow.git ShellFlow
@@ -151,32 +150,15 @@ dotnet build ShellFlow.slnx -p:Platform=x64
 Use `-p:Platform=ARM64` on ARM64 devices. The app is unpackaged and self-contained with respect to the Windows App SDK,
 so the build output runs directly.
 
-### Running tests
+### Portable build
 
 ```powershell
-dotnet test tests/ShellFlow.Tests
+dotnet publish src/ShellFlow.App -c Release -r win-x64 -p:Platform=x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true -o publish
 ```
 
-See [docs/TESTING.md](docs/TESTING.md) for what the tests cover, how to drive the real UI, and the manual verification
-checklist.
-
-### Portable release build
-
-```powershell
-.\build\publish.ps1                     # → artifacts\ShellFlow-<version>-win-x64\ShellFlow.exe (single file)
-.\build\publish.ps1 -Runtime win-arm64
-.\build\publish.ps1 -Folder             # → folder build + artifacts\ShellFlow-<version>-win-x64.zip
-.\build\publish.ps1 -Installer          # → artifacts\installer\ShellFlow-<version>-x64.msi
-```
-
-The installer is built with [WiX Toolset 5](https://wixtoolset.org/) from NuGet (`installer/`), so no extra tools need
-to be installed. `build/make-installer-art.ps1` regenerates its license page and artwork.
-
-The default output is one self-contained `.exe` (about 86 MB): copy it anywhere and run it, no .NET or Windows App
-SDK installation needed. It unpacks its native libraries to a cache folder the first time it runs. **Keep the file
-name `ShellFlow.exe`** — the Windows App SDK locates the embedded UI resources by the executable's name, and a renamed
-copy fails to start. The `-Folder`
-variant starts slightly faster because nothing is unpacked. For a normal installation use the MSI below.
+This produces one self-contained `ShellFlow.exe` (no .NET or Windows App SDK installation needed). **Keep the file
+name `ShellFlow.exe`** — the Windows App SDK locates the embedded UI resources by the executable's name. Ready-made
+installers and portable builds are attached to every [release](https://github.com/RaulDevStack/shellflow/releases).
 
 ## Configuration
 
@@ -184,13 +166,30 @@ Everything lives in `%LOCALAPPDATA%\ShellFlow` (override with the `SHELLFLOW_DAT
 
 | File | Contents |
 | --- | --- |
-| `settings.json` | Preferences, custom shells, key-binding overrides ([example](docs/settings.example.json)) |
+| `settings.json` | Preferences, custom shells, key-binding overrides (example below) |
 | `workspaces\*.json` | Saved workspaces (tabs, split layouts, starting directories) |
 | `state.json` | Last workspace, window placement |
 | `logs\` | Lifecycle and error logs (never terminal input/output) |
 
 Settings are validated on load; invalid values are corrected and reported, and an unreadable file is kept aside as
 `settings.corrupt-<timestamp>.json`.
+
+Most options are in the Settings page; a few advanced ones (custom shells, key bindings) are edited in `settings.json`:
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "defaultProfileId": "windows-powershell",
+  "terminal": { "fontFamily": "Cascadia Mono, Consolas, monospace", "fontSize": 13, "scrollback": 10000 },
+  "appearance": { "theme": "Dark", "accent": "Periwinkle", "animations": "System", "motionStyle": "Fluid" },
+  "profiles": [
+    { "id": "pwsh-dev", "name": "PowerShell (dev)", "executable": "pwsh.exe", "arguments": "-NoLogo",
+      "startingDirectory": "%USERPROFILE%\\source", "icon": "powershell", "accent": "#A6B7FF" }
+  ],
+  // command id → chord; several chords separated by " | "; "" unbinds the default
+  "keyBindings": { "pane.splitRight": "Ctrl+Alt+D" }
+}
+```
 
 ### Showing the current directory
 
@@ -219,10 +218,28 @@ ShellFlow.App (WinUI 3) ──▶ ShellFlow.TerminalHost (WebView2 + xterm.js) �
         └───────────────────────────── ShellFlow.Core (models, layout, persistence, commands) ◀┘
 ```
 
-Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the data flow (output streaming with backpressure, resizing,
-command routing) and [docs/SECURITY.md](docs/SECURITY.md) for the renderer trust boundary. Design tokens and motion
-guidelines are in [docs/DESIGN.md](docs/DESIGN.md); measured startup and throughput numbers, with test conditions, are in
-[docs/PERFORMANCE.md](docs/PERFORMANCE.md).
+- **ShellFlow.Core** — split-tree layout, workspace and settings models, versioned JSON persistence, shell detection,
+  the command registry and the renderer message schema. No UI dependency.
+- **ShellFlow.Terminal** — ConPTY sessions: process creation, a bounded output channel with backpressure, input,
+  resizing, exit detection and graceful shutdown.
+- **ShellFlow.TerminalHost** — one xterm.js renderer per pane in WebView2, served from a virtual host, with origin
+  checks and strict validation of every message from the page.
+- **ShellFlow.App** — the WinUI 3 window: tabs, split panes, command palette, cd picker, settings, single instance and
+  Explorer integration.
+
+Output is streamed with flow control (the renderer acknowledges what it has drawn), layout changes never recreate
+shells, and every action — toolbar, menu, shortcut or palette — goes through one command registry.
+
+## Security
+
+The terminal renderer is treated as untrusted: it only loads bundled files, has no network access (strict Content
+Security Policy), and can only send a closed set of validated messages to native code — input for its own shell, its
+size, folder-picker requests and registered command ids. It cannot start processes, open URLs or read files. A second
+launch talks to the running window over a named pipe restricted to the current Windows user. Logs never contain terminal
+input, output or clipboard data.
+
+Please report vulnerabilities privately via
+[GitHub private vulnerability reporting](https://github.com/RaulDevStack/shellflow/security/advisories/new).
 
 ## Known limitations
 
@@ -263,5 +280,6 @@ issue templates.
 
 ## License
 
-ShellFlow is released under the [MIT License](LICENSE). Third-party components are listed in
-[docs/SECURITY.md](docs/SECURITY.md#dependencies) with their licenses; their notices ship in `THIRD-PARTY-NOTICES.txt`.
+ShellFlow is released under the [MIT License](LICENSE). It bundles [xterm.js](https://xtermjs.org/) and its addons (MIT),
+whose notices are in `src/ShellFlow.TerminalHost/Assets/terminal/vendor/THIRD-PARTY-NOTICES.txt`, and uses the Windows
+App SDK and WebView2 from Microsoft.

@@ -47,4 +47,4 @@ First public preview.
   The "Restore the last workspace on startup" setting was removed (old settings files that contain it still load).
 - Dark and light themes, four accents, motion that follows the Windows animation setting.
 - Corrupt-configuration recovery, newer-version protection and atomic saves.
-- Unit tests and ConPTY integration tests; CDP-based UI driver; portable release script.
+- Portable single-file build and MSI installer attached to the release.
