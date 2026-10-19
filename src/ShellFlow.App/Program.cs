@@ -20,6 +20,14 @@ public static class Program
 
         var paths = AppPaths.Default;
         Log.Initialize(paths.LogsDirectory);
+
+        // Run by the uninstaller: restore Windows' default for .bat/.cmd before ShellFlow's files disappear.
+        if (args.Length == 1 && args[0] == "--unregister-scripts")
+        {
+            ScriptAssociation.Disable();
+            return 0;
+        }
+
         Instance = SingleInstance.Acquire(paths, args);
         if (Instance is null)
         {

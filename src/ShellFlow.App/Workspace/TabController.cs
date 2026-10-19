@@ -94,7 +94,9 @@ public sealed partial class TabController : INotifyPropertyChanged
 
     public Visibility PaneCountVisibility => _panes.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility ExitedVisibility => _panes.Values.Any(p => p.State is PaneState.Exited or PaneState.Failed) ? Visibility.Visible : Visibility.Collapsed;
+    /// <summary>Warning badge for panes that failed or whose shell / script ended with an error code.</summary>
+    public Visibility ExitedVisibility =>
+        _panes.Values.Any(p => p.State == PaneState.Failed || (p.State == PaneState.Exited && p.ExitCode != 0)) ? Visibility.Visible : Visibility.Collapsed;
 
     public string AutomationName => _panes.Count > 1 ? $"{Title}, {_panes.Count} panes" : Title;
 

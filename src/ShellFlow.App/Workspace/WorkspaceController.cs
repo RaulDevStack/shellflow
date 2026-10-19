@@ -115,9 +115,9 @@ public sealed class WorkspaceController
         Save();
     }
 
-    public TabController NewTab(ShellProfile? profile = null, string? startingDirectory = null)
+    public TabController NewTab(ShellProfile? profile = null, string? startingDirectory = null, string? script = null)
     {
-        var leaf = new PaneLeaf { ProfileId = (profile ?? _services.Profiles.Default).Id, StartingDirectory = startingDirectory };
+        var leaf = new PaneLeaf { ProfileId = (profile ?? _services.Profiles.Default).Id, StartingDirectory = startingDirectory, Script = script };
         var tab = new TabController(_services, new TabDocument { Root = leaf, FocusedPaneId = leaf.Id });
         var index = _selected is null ? Tabs.Count : Tabs.IndexOf(_selected) + 1;
         AddTab(tab, index);

@@ -38,6 +38,13 @@ public sealed class PaneLeaf : PaneNode
     /// <summary>Directory the pane's shell starts in. Null uses the profile or global default.</summary>
     public string? StartingDirectory { get; set; }
 
+    /// <summary>
+    /// A .bat/.cmd file this pane runs instead of an interactive shell. Not saved with workspaces: reopening a
+    /// workspace should never re-run scripts by itself.
+    /// </summary>
+    [JsonIgnore]
+    public string? Script { get; set; }
+
     public static string NewId() => Guid.NewGuid().ToString("N")[..12];
 }
 

@@ -5,6 +5,17 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-19
+
+### Added
+- Run `.bat` / `.cmd` files in ShellFlow: *Run in ShellFlow* in their context menu, `--run <file>`, and an opt-in
+  setting to make it the double-click action. Script tabs stay open with the exit code; Enter runs the script again.
+
+### Fixed
+- Upgrading over a different build of the installer could delete the bundled .NET runtime files, after which ShellFlow
+  asked to install the .NET Desktop Runtime. The installer now always copies every file.
+- Tabs no longer show a warning badge for shells or scripts that exited successfully.
+
 ## [0.1.0] - 2026-10-19
 
 First public preview.

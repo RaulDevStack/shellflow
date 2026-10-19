@@ -249,6 +249,20 @@ public sealed partial class MainView : UserControl
             SettingsPanel.Close();
         }
 
+        if (request.Script is { } script)
+        {
+            if (ResolveScript(script) is { } file)
+            {
+                _workspace.NewTab(ScriptProfile, Path.GetDirectoryName(file), file);
+            }
+            else
+            {
+                ShowNotice($"The script \"{script}\" was not found.", InfoBarSeverity.Warning);
+            }
+
+            return;
+        }
+
         var directory = request.Directory;
         if (directory is not null && !Directory.Exists(directory))
         {
@@ -279,6 +293,29 @@ public sealed partial class MainView : UserControl
         }
 
         _workspace.NewTab(profile, directory);
+    }
+
+    /// <summary>Scripts always run in Command Prompt, like a double-click in Explorer.</summary>
+    private ShellProfile ScriptProfile =>
+        _services.Profiles.Find(ProfileDetector.CmdId) ?? new ShellProfile
+        {
+            Id = ProfileDetector.CmdId,
+            Name = "Command Prompt",
+            Executable = Environment.GetEnvironmentVariable("ComSpec") ?? "cmd.exe",
+            Icon = ProfileIcons.Cmd,
+        };
+
+    private static string? ResolveScript(string path)
+    {
+        try
+        {
+            var full = Path.GetFullPath(path);
+            return Core.StartupArguments.IsScript(full) && File.Exists(full) ? full : null;
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return null;
+        }
     }
 
     // ── Tabs and panes ───────────────────────────────────────────────────────
@@ -721,6 +758,20 @@ public sealed partial class MainView : UserControl
             else
             {
                 notes.Add($"The folder \"{directory}\" does not exist; ShellFlow started in the default folder.");
+            }
+        }
+
+        if (startup.Script is { } script)
+        {
+            if (ResolveScript(script) is { } file)
+            {
+                first.Script = file;
+                first.ProfileId = ScriptProfile.Id;
+                first.StartingDirectory = Path.GetDirectoryName(file);
+            }
+            else
+            {
+                notes.Add($"The script \"{script}\" was not found.");
             }
         }
 

@@ -161,6 +161,17 @@
                             </StackPanel>
                             <ToggleSwitch x:Name="FolderCompletionToggle" Grid.Column="1" AutomationProperties.Name="Folder picker for cd" OffContent="Off" OnContent="On" Toggled="OnBehaviorToggled" />
                         </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Open .bat and .cmd files with ShellFlow" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Double-clicking a batch file runs it in a new ShellFlow tab that stays open when it finishes. Applies to your Windows account; turn it off to restore the normal console. Right-click → Run in ShellFlow always works." />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="ScriptAssociationToggle" Grid.Column="1" AutomationProperties.Name="Open .bat and .cmd files with ShellFlow" OffContent="Off" OnContent="On" Toggled="OnScriptAssociationToggled" />
+                        </Grid>
                     </StackPanel>
 
                     <!--  Appearance  -->

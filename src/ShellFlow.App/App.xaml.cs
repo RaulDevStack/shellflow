@@ -31,6 +31,7 @@ public partial class App : Application
         Log.Info($"ShellFlow {typeof(App).Assembly.GetName().Version} starting on Windows {Environment.OSVersion.Version}.");
 
         TerminalWebEnvironment.Configure(paths.WebViewDataDirectory);
+        KeepScriptAssociationCurrent();
         var startup = Core.StartupArguments.Parse(Environment.GetCommandLineArgs().Skip(1).ToList());
         var services = AppServices.Create(paths, startup);
 
@@ -45,6 +46,25 @@ public partial class App : Application
             var request = Core.StartupArguments.Parse(forwarded);
             window.DispatcherQueue.TryEnqueue(() => window.HandleLaunch(request));
         });
+    }
+
+    /// <summary>
+    /// If .bat/.cmd files open with ShellFlow, make sure the verb points at this executable (a portable copy may have
+    /// moved); a verb pointing at a missing file would stop batch files from running at all.
+    /// </summary>
+    private static void KeepScriptAssociationCurrent()
+    {
+        try
+        {
+            if (ScriptAssociation.IsEnabled() && Environment.ProcessPath is { } exe)
+            {
+                ScriptAssociation.EnsureVerb(exe);
+            }
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            Log.Warn($"Could not refresh the .bat/.cmd association: {ex.Message}");
+        }
     }
 
     private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)

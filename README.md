@@ -59,6 +59,10 @@ Get the latest version from the [**Releases page**](https://github.com/RaulDevSt
 - **cd folder picker.** Type `cd` (optionally part of a path) and press Tab to browse folders with the arrow keys:
   Enter changes directory, Tab/→ opens a folder, ← goes up (all the way to the drive list), typing filters.
 - **One window.** Launching ShellFlow again (Start menu, Win+R, Explorer) reuses the open window.
+- **Batch files.** Right-click a `.bat` / `.cmd` → *Run in ShellFlow*, or turn on *Open .bat and .cmd files with
+  ShellFlow* (Settings → General) to run them on double-click. Each script runs in its own tab, in its own folder, and
+  the tab stays open with the exit code when it finishes (Enter runs it again). Turning the option off — or
+  uninstalling — restores Windows' normal behavior.
 - **Command palette** (`Ctrl+Shift+P`). Every action — toolbar, menus, shortcuts — goes through one command registry.
 - **Clean start.** ShellFlow always opens with a single terminal; layouts from the previous session are not restored.
 - **Workspaces.** Named sets of tabs and layouts you can save and switch between during a session.
@@ -125,6 +129,7 @@ New versions upgrade in place. Uninstalling keeps your settings in `%LOCALAPPDAT
 
 ```text
 ShellFlow.exe [--new-tab | --new-pane] [-d|--directory <folder>] [-p|--profile <id>] [<folder>]
+ShellFlow.exe --run <script.bat|script.cmd>
 ```
 
 For example `shellflow -d C:\src -p cmd` opens Command Prompt in `C:\src`. When ShellFlow is already running the

@@ -20,10 +20,18 @@ public enum LaunchMode
 /// </summary>
 public sealed record StartupArguments(string? Directory, string? ProfileId, IReadOnlyList<string> Warnings, LaunchMode Mode = LaunchMode.Default)
 {
+    private static readonly string[] ScriptExtensions = [".bat", ".cmd"];
+
     public static StartupArguments Empty { get; } = new(null, null, []);
 
+    /// <summary>A .bat or .cmd file to run in a new tab (from double-click or "Run in ShellFlow").</summary>
+    public string? Script { get; init; }
+
     /// <summary>True when a running instance should open a new terminal for this request.</summary>
-    public bool RequestsTerminal => Mode != LaunchMode.Default || Directory is not null || ProfileId is not null;
+    public bool RequestsTerminal => Mode != LaunchMode.Default || Directory is not null || ProfileId is not null || Script is not null;
+
+    public static bool IsScript(string? path) =>
+        path is not null && ScriptExtensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase);
 
     /// <param name="args">Arguments without the executable path.</param>
     public static StartupArguments Parse(IReadOnlyList<string> args)
@@ -31,6 +39,7 @@ public sealed record StartupArguments(string? Directory, string? ProfileId, IRea
         ArgumentNullException.ThrowIfNull(args);
         string? directory = null;
         string? profile = null;
+        string? script = null;
         var mode = LaunchMode.Default;
         var warnings = new List<string>();
 
@@ -51,10 +60,26 @@ public sealed record StartupArguments(string? Directory, string? ProfileId, IRea
                 case "--new-pane":
                     mode = LaunchMode.NewPane;
                     break;
+                case "--run":
+                    var file = Next(args, ref i, arg, warnings)?.Trim().Trim('"');
+                    if (file is not null && !IsScript(file))
+                    {
+                        warnings.Add($"Only .bat and .cmd files can be run with --run (got \"{Path.GetFileName(file)}\").");
+                    }
+                    else
+                    {
+                        script = file ?? script;
+                    }
+
+                    break;
                 default:
                     if (arg.StartsWith('-') && arg.Length > 1)
                     {
                         warnings.Add($"Unknown option \"{arg}\" was ignored.");
+                    }
+                    else if (IsScript(arg.Trim('"')))
+                    {
+                        script ??= arg.Trim('"'); // ShellFlow.exe C:\tools\build.bat
                     }
                     else
                     {
@@ -65,7 +90,10 @@ public sealed record StartupArguments(string? Directory, string? ProfileId, IRea
             }
         }
 
-        return new StartupArguments(NormalizeDirectory(directory), string.IsNullOrWhiteSpace(profile) ? null : profile.Trim(), warnings, mode);
+        return new StartupArguments(NormalizeDirectory(directory), string.IsNullOrWhiteSpace(profile) ? null : profile.Trim(), warnings, mode)
+        {
+            Script = string.IsNullOrWhiteSpace(script) ? null : script,
+        };
     }
 
     /// <summary>

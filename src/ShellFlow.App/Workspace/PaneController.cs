@@ -133,6 +133,11 @@ public sealed class PaneController
     {
         get
         {
+            if (Leaf.Script is { } script)
+            {
+                return Path.GetFileName(script);
+            }
+
             var title = ShellTitle?.Trim();
             if (string.IsNullOrEmpty(title) || title.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) || title.StartsWith("Administrator: C:\\", StringComparison.OrdinalIgnoreCase))
             {
@@ -300,9 +305,25 @@ public sealed class PaneController
             }
 
             Kind = ShellIntegration.Detect(resolved.ExecutablePath);
-            var launch = _services.Settings.Behavior.ShellIntegration
-                ? ShellIntegration.Apply(Kind, Profile.Arguments, Profile.Environment, System.Environment.GetEnvironmentVariable("PROMPT"))
-                : new IntegratedLaunch(Profile.Arguments, Profile.Environment, false);
+            IntegratedLaunch launch;
+            if (Leaf.Script is { } script)
+            {
+                // Like double-clicking a .bat: cmd runs the file and ends. /s keeps the quoted path intact.
+                if (!File.Exists(script))
+                {
+                    Fail($"The script \"{script}\" no longer exists.");
+                    return;
+                }
+
+                Kind = ShellKind.Unknown; // No prompt, so no shell integration or cd picker.
+                launch = new IntegratedLaunch($"/d /s /c \"\"{script}\"\"", Profile.Environment, false);
+            }
+            else
+            {
+                launch = _services.Settings.Behavior.ShellIntegration
+                    ? ShellIntegration.Apply(Kind, Profile.Arguments, Profile.Environment, System.Environment.GetEnvironmentVariable("PROMPT"))
+                    : new IntegratedLaunch(Profile.Arguments, Profile.Environment, false);
+            }
 
             var options = new TerminalLaunchOptions
             {
@@ -361,6 +382,13 @@ public sealed class PaneController
         ExitCode = code;
         Log.Info($"Shell '{Profile.Id}' (pid {session.ProcessId}) exited with code {code}.");
         Changed?.Invoke(this, EventArgs.Empty);
+
+        if (Leaf.Script is not null)
+        {
+            // Unlike a console window, keep the output readable after the script ends.
+            View.ShowStatus(code == 0 ? "exited" : "error", $"{Path.GetFileName(Leaf.Script)} finished with exit code {code}  ·  Enter to run again  ·  {Shortcut(CommandIds.ClosePane)} to close");
+            return;
+        }
 
         if (code == 0 && _services.Settings.Behavior.CloseOnCleanExit)
         {

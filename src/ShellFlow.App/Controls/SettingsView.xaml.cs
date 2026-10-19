@@ -125,6 +125,7 @@ public sealed partial class SettingsView : UserControl
             CloseOnExitToggle.IsOn = Settings.Behavior.CloseOnCleanExit;
             IntegrationToggle.IsOn = Settings.Behavior.ShellIntegration;
             FolderCompletionToggle.IsOn = Settings.Behavior.FolderCompletion;
+            ScriptAssociationToggle.IsOn = ScriptAssociation.IsEnabled();
 
             SelectByTag(ThemeBox, Settings.Appearance.Theme.ToString());
             SelectByTag(MotionBox, Settings.Appearance.Animations.ToString());
@@ -243,6 +244,33 @@ public sealed partial class SettingsView : UserControl
         s.Behavior.ShellIntegration = IntegrationToggle.IsOn;
         s.Behavior.FolderCompletion = FolderCompletionToggle.IsOn;
     });
+
+    private void OnScriptAssociationToggled(object sender, RoutedEventArgs e)
+    {
+        if (_loading || ScriptAssociationToggle.IsOn == ScriptAssociation.IsEnabled())
+        {
+            return;
+        }
+
+        try
+        {
+            if (ScriptAssociationToggle.IsOn)
+            {
+                ScriptAssociation.Enable(System.Environment.ProcessPath!);
+            }
+            else
+            {
+                ScriptAssociation.Disable();
+            }
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            Log.Error("Could not change the .bat/.cmd association", ex);
+            _loading = true;
+            ScriptAssociationToggle.IsOn = ScriptAssociation.IsEnabled();
+            _loading = false;
+        }
+    }
 
     // ── Appearance ───────────────────────────────────────────────────────────
 
