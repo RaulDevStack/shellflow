@@ -34,8 +34,12 @@ $owner = gh api user --jq .login
 $repo = "$owner/$Name"
 Write-Host "Publishing ShellFlow $version to github.com/$repo" -ForegroundColor Cyan
 
-gh repo view $repo 2>$null | Out-Null
-if ($LASTEXITCODE -eq 0) { throw "Repository $repo already exists; refusing to overwrite it." }
+# "Not found" is the expected answer; gh reports it on stderr, which must not abort the script.
+$ErrorActionPreference = 'Continue'
+gh repo view $repo *> $null
+$exists = $LASTEXITCODE -eq 0
+$ErrorActionPreference = 'Stop'
+if ($exists) { throw "Repository $repo already exists; refusing to overwrite it." }
 
 # Links in the docs point at RaulDevStack/shellflow; adjust them if the account or name differs.
 if ($repo -ne 'RaulDevStack/shellflow') {
