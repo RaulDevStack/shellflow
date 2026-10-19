@@ -62,8 +62,12 @@ gh repo edit $repo --add-topic ($topics -join ',') --enable-issues --enable-wiki
 # Lets people report vulnerabilities privately (linked from docs/SECURITY.md).
 gh api -X PUT "repos/$repo/private-vulnerability-reporting" --silent
 
-$prerelease = if ($version -like '0.*') { @('--prerelease') } else { @() }
-gh release create $tag $assets.FullName --title "ShellFlow $version" --notes-file "docs/release-notes/$tag.md" @prerelease
+$releaseArgs = [System.Collections.Generic.List[string]]::new()
+$releaseArgs.AddRange([string[]]@('release', 'create', $tag))
+$releaseArgs.AddRange([string[]]$assets.FullName)
+$releaseArgs.AddRange([string[]]@('--title', "ShellFlow $version", '--notes-file', "docs/release-notes/$tag.md"))
+if ($version -like '0.*') { $releaseArgs.Add('--prerelease') }
+gh @releaseArgs
 if ($LASTEXITCODE -ne 0) { throw 'Creating the release failed.' }
 
 Write-Host "`nDone: https://github.com/$repo" -ForegroundColor Green
