@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ShellFlow.App/ShellFlow.App.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/ShellFlow.Core/ShellFlow.Core.csproj" />
+    <Project Path="src/ShellFlow.Terminal/ShellFlow.Terminal.csproj" />
+    <Project Path="src/ShellFlow.TerminalHost/ShellFlow.TerminalHost.csproj">
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ShellFlow.Tests/ShellFlow.Tests.csproj" />
+  </Folder>
+</Solution>

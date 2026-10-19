@@ -1,0 +1,358 @@
+<UserControl
+    x:Class="ShellFlow.App.Controls.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid x:Name="Root" Background="{ThemeResource SfWindowBackgroundBrush}" KeyDown="OnRootKeyDown">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!--  Section navigation  -->
+        <Grid Padding="12,12,8,12" BorderBrush="{ThemeResource SfBorderSubtleBrush}" BorderThickness="0,1,1,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Margin="10,4,0,12" FontSize="{StaticResource SfFontTitle}" FontWeight="SemiBold" Text="Settings" />
+            <ListView
+                x:Name="SectionList"
+                Grid.Row="1"
+                AutomationProperties.Name="Settings sections"
+                SelectionChanged="OnSectionChanged"
+                SelectionMode="Single">
+                <ListViewItem Tag="general">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon FontFamily="{StaticResource SfIconFont}" FontSize="14" Glyph="&#xE713;" />
+                        <TextBlock Text="General" />
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem Tag="appearance">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon FontFamily="{StaticResource SfIconFont}" FontSize="14" Glyph="&#xE790;" />
+                        <TextBlock Text="Appearance" />
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem Tag="terminal">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon FontFamily="{StaticResource SfIconFont}" FontSize="14" Glyph="&#xE756;" />
+                        <TextBlock Text="Terminal" />
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem Tag="profiles">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon FontFamily="{StaticResource SfIconFont}" FontSize="14" Glyph="&#xE7EF;" />
+                        <TextBlock Text="Shells" />
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem Tag="shortcuts">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon FontFamily="{StaticResource SfIconFont}" FontSize="14" Glyph="&#xE765;" />
+                        <TextBlock Text="Keyboard shortcuts" />
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem Tag="about">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon FontFamily="{StaticResource SfIconFont}" FontSize="14" Glyph="&#xE946;" />
+                        <TextBlock Text="About" />
+                    </StackPanel>
+                </ListViewItem>
+            </ListView>
+        </Grid>
+
+        <!--  Section content  -->
+        <Grid Grid.Column="1" BorderBrush="{ThemeResource SfBorderSubtleBrush}" BorderThickness="0,1,0,0">
+            <Button
+                Margin="0,10,14,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                AutomationProperties.Name="Close settings"
+                Canvas.ZIndex="2"
+                Click="OnCloseClick"
+                Content="&#xE711;"
+                Style="{StaticResource SfIconButtonStyle}"
+                ToolTipService.ToolTip="Close settings (Esc)" />
+
+            <ScrollViewer x:Name="ContentScroller" Padding="32,20,32,32" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Auto">
+                <Grid x:Name="ContentHost" MaxWidth="780" HorizontalAlignment="Stretch">
+
+                    <!--  General  -->
+                    <StackPanel x:Name="GeneralPanel" Spacing="8">
+                        <TextBlock Style="{StaticResource SfSectionHeaderStyle}" Text="General" />
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Default shell" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Used for new tabs and panes." />
+                            </StackPanel>
+                            <ComboBox x:Name="DefaultProfileBox" Grid.Column="1" MinWidth="220" VerticalAlignment="Center" AutomationProperties.Name="Default shell" DisplayMemberPath="Name" SelectionChanged="OnDefaultProfileChanged" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center" Spacing="2">
+                                <TextBlock Text="Default starting directory" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Where shells start when their profile does not specify a directory. Leave empty for your user folder." />
+                                <TextBlock x:Name="StartDirError" Foreground="{ThemeResource SfErrorBrush}" Style="{StaticResource SfCaptionTextStyle}" Visibility="Collapsed" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal" Spacing="6">
+                                <TextBox x:Name="StartDirBox" Width="240" AutomationProperties.Name="Default starting directory" LostFocus="OnStartDirCommitted" PlaceholderText="%USERPROFILE%" />
+                                <Button Click="OnBrowseStartDir" Content="Browse…" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Confirm before stopping running commands" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Ask before closing a pane, tab, workspace or the window while a command is running." />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="ConfirmCloseToggle" Grid.Column="1" AutomationProperties.Name="Confirm before stopping running commands" OffContent="Off" OnContent="On" Toggled="OnBehaviorToggled" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Warn before multi-line paste" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Shells often run each pasted line immediately." />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="MultilineToggle" Grid.Column="1" AutomationProperties.Name="Warn before multi-line paste" OffContent="Off" OnContent="On" Toggled="OnBehaviorToggled" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Close panes when the shell exits successfully" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="For example after typing exit. Panes whose shell fails stay open so you can read the output." />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="CloseOnExitToggle" Grid.Column="1" AutomationProperties.Name="Close panes when the shell exits successfully" OffContent="Off" OnContent="On" Toggled="OnBehaviorToggled" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Shell integration" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="PowerShell, Command Prompt and Git Bash report their current folder, so new panes open in the same folder and the status bar shows it. Your prompt stays the same. Applies to newly opened shells." />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="IntegrationToggle" Grid.Column="1" AutomationProperties.Name="Shell integration" OffContent="Off" OnContent="On" Toggled="OnBehaviorToggled" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Folder picker for cd" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Type cd and press Tab to browse folders with the arrow keys. When the shell's folder is unknown, Tab keeps its usual completion." />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="FolderCompletionToggle" Grid.Column="1" AutomationProperties.Name="Folder picker for cd" OffContent="Off" OnContent="On" Toggled="OnBehaviorToggled" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!--  Appearance  -->
+                    <StackPanel x:Name="AppearancePanel" Spacing="8" Visibility="Collapsed">
+                        <TextBlock Style="{StaticResource SfSectionHeaderStyle}" Text="Appearance" />
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center" Text="Theme" />
+                            <ComboBox x:Name="ThemeBox" Grid.Column="1" MinWidth="200" AutomationProperties.Name="Theme" SelectionChanged="OnAppearanceChanged">
+                                <ComboBoxItem Content="Dark" Tag="Dark" />
+                                <ComboBoxItem Content="Light" Tag="Light" />
+                                <ComboBoxItem Content="Use Windows setting" Tag="System" />
+                            </ComboBox>
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Accent color" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Used for focus, the active pane, selections and the cursor." />
+                            </StackPanel>
+                            <StackPanel x:Name="AccentPanel" Grid.Column="1" Orientation="Horizontal" Spacing="6" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Animations" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Controls motion such as panel slides and pane fades. Terminal text is never animated." />
+                            </StackPanel>
+                            <ComboBox x:Name="MotionBox" Grid.Column="1" MinWidth="200" AutomationProperties.Name="Animations" SelectionChanged="OnAppearanceChanged">
+                                <ComboBoxItem Content="Use Windows setting" Tag="System" />
+                                <ComboBoxItem Content="On" Tag="Full" />
+                                <ComboBoxItem Content="Off" Tag="Off" />
+                            </ComboBox>
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Animation style" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Fluid: panes pop in, layouts glide into place, tabs slide and the active pane gets a gradient border. Subtle: short fades only." />
+                            </StackPanel>
+                            <ComboBox x:Name="MotionStyleBox" Grid.Column="1" MinWidth="200" AutomationProperties.Name="Animation style" SelectionChanged="OnAppearanceChanged">
+                                <ComboBoxItem Content="Fluid" Tag="Fluid" />
+                                <ComboBoxItem Content="Subtle" Tag="Subtle" />
+                            </ComboBox>
+                        </Grid>
+                    </StackPanel>
+
+                    <!--  Terminal  -->
+                    <StackPanel x:Name="TerminalPanel" Spacing="8" Visibility="Collapsed">
+                        <TextBlock Style="{StaticResource SfSectionHeaderStyle}" Text="Terminal" />
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Font family" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="A comma-separated list; the first installed font is used." />
+                            </StackPanel>
+                            <ComboBox x:Name="FontBox" Grid.Column="1" Width="280" AutomationProperties.Name="Terminal font family" IsEditable="True" TextSubmitted="OnFontSubmitted" SelectionChanged="OnFontSelected" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center" Text="Font size" />
+                            <NumberBox x:Name="FontSizeBox" Grid.Column="1" Width="140" AutomationProperties.Name="Terminal font size" LargeChange="2" Maximum="36" Minimum="8" SmallChange="1" SpinButtonPlacementMode="Inline" ValueChanged="OnTerminalNumberChanged" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center" Text="Line height" />
+                            <NumberBox x:Name="LineHeightBox" Grid.Column="1" Width="140" AutomationProperties.Name="Line height" LargeChange="0.1" Maximum="2" Minimum="1" SmallChange="0.05" SpinButtonPlacementMode="Inline" ValueChanged="OnTerminalNumberChanged" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center" Text="Cursor" />
+                            <ComboBox x:Name="CursorBox" Grid.Column="1" MinWidth="140" VerticalAlignment="Center" AutomationProperties.Name="Cursor style" SelectionChanged="OnTerminalChoiceChanged">
+                                <ComboBoxItem Content="Bar" Tag="Bar" />
+                                <ComboBoxItem Content="Block" Tag="Block" />
+                                <ComboBoxItem Content="Underline" Tag="Underline" />
+                            </ComboBox>
+                            <CheckBox x:Name="BlinkBox" Grid.Column="2" VerticalAlignment="Center" Click="OnTerminalToggled" Content="Blink" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Scrollback lines" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Lines kept per pane. Higher values use more memory." />
+                            </StackPanel>
+                            <NumberBox x:Name="ScrollbackBox" Grid.Column="1" Width="160" AutomationProperties.Name="Scrollback lines" LargeChange="5000" Maximum="100000" Minimum="0" SmallChange="1000" SpinButtonPlacementMode="Inline" ValueChanged="OnTerminalNumberChanged" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="GPU-accelerated rendering" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Uses WebGL when available and falls back automatically." />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="GpuToggle" Grid.Column="1" AutomationProperties.Name="GPU-accelerated rendering" OffContent="Off" OnContent="On" Toggled="OnTerminalToggled" />
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Copy on select" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Copy text to the clipboard as soon as it is selected." />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="CopyOnSelectToggle" Grid.Column="1" AutomationProperties.Name="Copy on select" OffContent="Off" OnContent="On" Toggled="OnTerminalToggled" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!--  Profiles  -->
+                    <StackPanel x:Name="ProfilesPanel" Spacing="8" Visibility="Collapsed">
+                        <Grid>
+                            <TextBlock Style="{StaticResource SfSectionHeaderStyle}" Text="Shells" />
+                            <Button Margin="0,0,40,0" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnAddProfile" Content="Add shell…" Style="{StaticResource AccentButtonStyle}" />
+                        </Grid>
+                        <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Detected shells are found automatically each time ShellFlow starts. Customize one to override its settings, or add your own." />
+                        <StackPanel x:Name="ProfileList" Margin="0,8,0,0" Spacing="8" />
+                    </StackPanel>
+
+                    <!--  Shortcuts  -->
+                    <StackPanel x:Name="ShortcutsPanel" Spacing="8" Visibility="Collapsed">
+                        <TextBlock Style="{StaticResource SfSectionHeaderStyle}" Text="Keyboard shortcuts" />
+                        <TextBlock Style="{StaticResource SfCaptionTextStyle}">
+                            <Run Text="Shortcuts work while a terminal has focus. To change one, add an entry to" />
+                            <Run FontFamily="Cascadia Mono, Consolas" Text="keyBindings" />
+                            <Run Text="in settings.json, for example" />
+                            <Run FontFamily="Cascadia Mono, Consolas" Text="&quot;pane.splitRight&quot;: &quot;Ctrl+Alt+D&quot;" />
+                            <Run Text="(use an empty string to unbind)." />
+                        </TextBlock>
+                        <Button Click="OnRevealSettingsFile" Content="Show settings.json in Explorer" />
+                        <StackPanel x:Name="ShortcutList" Margin="0,8,0,0" Spacing="4" />
+                    </StackPanel>
+
+                    <!--  About  -->
+                    <StackPanel x:Name="AboutPanel" Spacing="8" Visibility="Collapsed">
+                        <TextBlock Style="{StaticResource SfSectionHeaderStyle}" Text="About" />
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Image Width="48" Height="48" VerticalAlignment="Top" Source="ms-appx:///Assets/ShellFlow.png" />
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock FontSize="{StaticResource SfFontSubtitle}" FontWeight="SemiBold" Text="ShellFlow" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Your terminal. In flow." />
+                                <TextBlock x:Name="VersionText" Margin="0,6,0,0" IsTextSelectionEnabled="True" Style="{StaticResource SfCaptionTextStyle}" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Data folder" />
+                                <TextBlock x:Name="DataFolderText" IsTextSelectionEnabled="True" Style="{StaticResource SfCaptionTextStyle}" />
+                            </StackPanel>
+                            <Button Grid.Column="1" Click="OnOpenDataFolder" Content="Open folder" />
+                        </Grid>
+                        <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Terminal rendering by xterm.js (MIT License). See THIRD-PARTY-NOTICES.txt next to the application for details." />
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

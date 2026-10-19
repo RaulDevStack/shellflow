@@ -1,0 +1,306 @@
+<UserControl
+    x:Class="ShellFlow.App.MainView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:ShellFlow.App.Controls"
+    xmlns:ws="using:ShellFlow.App.Workspace">
+
+    <Grid x:Name="RootGrid" Background="{ThemeResource SfWindowBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="26" />
+        </Grid.RowDefinitions>
+
+        <!--  Title bar: brand, workspace switcher, tabs, toolbar. The whole row is a drag region except interactive parts.  -->
+        <Grid x:Name="TitleBar" Grid.Row="0" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition x:Name="CaptionColumn" Width="138" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel
+                Margin="14,0,4,0"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Image
+                    Width="18"
+                    Height="18"
+                    AutomationProperties.AccessibilityView="Raw"
+                    Source="ms-appx:///Assets/ShellFlow.png" />
+                <TextBlock
+                    x:Name="AppTitleText"
+                    VerticalAlignment="Center"
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    Foreground="{ThemeResource SfTextPrimaryBrush}"
+                    Text="ShellFlow" />
+            </StackPanel>
+
+            <Button
+                x:Name="WorkspaceButton"
+                Grid.Column="1"
+                Height="28"
+                Margin="4,0,8,0"
+                VerticalAlignment="Center"
+                AutomationProperties.Name="Workspace"
+                Click="OnWorkspaceButtonClick"
+                Style="{StaticResource SfGhostButtonStyle}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock VerticalAlignment="Center" Foreground="{ThemeResource SfTextTertiaryBrush}" Text="/" />
+                    <TextBlock
+                        x:Name="WorkspaceNameText"
+                        MaxWidth="160"
+                        VerticalAlignment="Center"
+                        FontSize="12.5"
+                        Text="Default"
+                        TextTrimming="CharacterEllipsis" />
+                    <FontIcon
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource SfIconFont}"
+                        FontSize="9"
+                        Glyph="&#xE70D;" />
+                </StackPanel>
+            </Button>
+
+            <Grid x:Name="TabArea" Grid.Column="2" HorizontalAlignment="Left">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ListView
+                    x:Name="TabStrip"
+                    Height="34"
+                    VerticalAlignment="Center"
+                    AllowDrop="True"
+                    AutomationProperties.Name="Tabs"
+                    CanDragItems="True"
+                    CanReorderItems="True"
+                    ItemContainerStyle="{StaticResource SfTabItemStyle}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                    ScrollViewer.HorizontalScrollMode="Enabled"
+                    ScrollViewer.VerticalScrollMode="Disabled"
+                    SelectionChanged="OnTabStripSelectionChanged"
+                    SelectionMode="Single">
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsStackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemContainerTransitions>
+                        <TransitionCollection x:Name="TabTransitions">
+                            <AddDeleteThemeTransition />
+                            <ReorderThemeTransition />
+                        </TransitionCollection>
+                    </ListView.ItemContainerTransitions>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="ws:TabController">
+                            <Grid
+                                Width="{x:Bind TabWidth, Mode=OneWay}"
+                                Padding="10,0,4,0"
+                                AutomationProperties.Name="{x:Bind AutomationName, Mode=OneWay}"
+                                ColumnSpacing="7"
+                                ToolTipService.ToolTip="{x:Bind ToolTip, Mode=OneWay}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon
+                                    VerticalAlignment="Center"
+                                    FontFamily="{StaticResource SfIconFont}"
+                                    FontSize="12"
+                                    Foreground="{x:Bind AccentBrush, Mode=OneWay}"
+                                    Glyph="{x:Bind Glyph, Mode=OneWay}" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="12.5"
+                                    Text="{x:Bind Title, Mode=OneWay}"
+                                    TextTrimming="CharacterEllipsis" />
+                                <Border
+                                    Grid.Column="2"
+                                    MinWidth="16"
+                                    Padding="4,0"
+                                    VerticalAlignment="Center"
+                                    Background="{ThemeResource SfShortcutChipBrush}"
+                                    CornerRadius="4"
+                                    ToolTipService.ToolTip="Panes in this tab"
+                                    Visibility="{x:Bind PaneCountVisibility, Mode=OneWay}">
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontSize="10.5"
+                                        Foreground="{ThemeResource SfTextSecondaryBrush}"
+                                        Text="{x:Bind PaneCountText, Mode=OneWay}" />
+                                </Border>
+                                <FontIcon
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    FontFamily="{StaticResource SfIconFont}"
+                                    FontSize="11"
+                                    Foreground="{ThemeResource SfWarningBrush}"
+                                    Glyph="&#xE7BA;"
+                                    ToolTipService.ToolTip="A shell in this tab has exited"
+                                    Visibility="{x:Bind ExitedVisibility, Mode=OneWay}" />
+                                <Rectangle
+                                    Grid.ColumnSpan="5"
+                                    Width="18"
+                                    Height="2"
+                                    Margin="0,0,0,2"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom"
+                                    Fill="{ThemeResource SfAccentBrush}"
+                                    IsHitTestVisible="False"
+                                    Opacity="{x:Bind IndicatorOpacity, Mode=OneWay}"
+                                    RadiusX="1"
+                                    RadiusY="1">
+                                    <Rectangle.OpacityTransition>
+                                        <ScalarTransition Duration="0:0:0.16" />
+                                    </Rectangle.OpacityTransition>
+                                </Rectangle>
+                                <Button
+                                    Grid.Column="4"
+                                    VerticalAlignment="Center"
+                                    AutomationProperties.Name="Close tab"
+                                    Click="OnTabCloseClick"
+                                    Content="&#xE711;"
+                                    IsTabStop="False"
+                                    Style="{StaticResource SfSmallIconButtonStyle}"
+                                    Tag="{x:Bind}"
+                                    ToolTipService.ToolTip="Close tab" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <StackPanel
+                    x:Name="NewTabButtons"
+                    Grid.Column="1"
+                    Margin="2,0,0,0"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
+                    <Button
+                        x:Name="NewTabButton"
+                        AutomationProperties.Name="New tab"
+                        Click="OnNewTabClick"
+                        Content="&#xE710;"
+                        Style="{StaticResource SfIconButtonStyle}" />
+                    <Button
+                        x:Name="ProfileMenuButton"
+                        Width="20"
+                        AutomationProperties.Name="New tab with shell"
+                        Content="&#xE70D;"
+                        FontSize="9"
+                        Style="{StaticResource SfIconButtonStyle}"
+                        ToolTipService.ToolTip="Open a specific shell">
+                        <Button.Flyout>
+                            <MenuFlyout x:Name="ProfileMenu" Placement="BottomEdgeAlignedLeft" />
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <StackPanel
+                x:Name="Toolbar"
+                Grid.Column="3"
+                Margin="8,0,6,0"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="2">
+                <Button x:Name="SplitRightButton" AutomationProperties.Name="Split right" Click="OnToolbarClick" Content="&#xE90D;" Style="{StaticResource SfIconButtonStyle}" Tag="pane.splitRight" />
+                <Button x:Name="SplitDownButton" AutomationProperties.Name="Split down" Click="OnToolbarClick" Content="&#xE90E;" Style="{StaticResource SfIconButtonStyle}" Tag="pane.splitDown" />
+                <Rectangle Width="1" Height="16" Margin="4,0" Fill="{ThemeResource SfBorderSubtleBrush}" />
+                <Button x:Name="SearchButton" AutomationProperties.Name="Find" Click="OnToolbarClick" Content="&#xE721;" Style="{StaticResource SfIconButtonStyle}" Tag="terminal.search" />
+                <Button x:Name="PaletteButton" AutomationProperties.Name="Command palette" Click="OnToolbarClick" Content="&#xE945;" Style="{StaticResource SfIconButtonStyle}" Tag="app.commandPalette" />
+                <Button x:Name="SettingsButton" AutomationProperties.Name="Settings" Click="OnToolbarClick" Content="&#xE713;" Style="{StaticResource SfIconButtonStyle}" Tag="app.settings" />
+            </StackPanel>
+        </Grid>
+
+        <!--  Workspace area  -->
+        <Grid Grid.Row="1" Margin="6,0,6,0">
+            <Grid x:Name="TabHostContainer" />
+
+            <StackPanel
+                x:Name="EmptyState"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Spacing="14"
+                Visibility="Collapsed">
+                <Image Width="56" Height="56" Opacity="0.9" Source="ms-appx:///Assets/ShellFlow.png" AutomationProperties.AccessibilityView="Raw" />
+                <TextBlock HorizontalAlignment="Center" FontSize="{StaticResource SfFontSubtitle}" FontWeight="SemiBold" Text="No terminals open" />
+                <TextBlock x:Name="EmptyHintText" HorizontalAlignment="Center" Style="{StaticResource SfCaptionTextStyle}" TextAlignment="Center" />
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
+                    <Button Click="OnNewTabClick" Content="New tab" Style="{StaticResource AccentButtonStyle}" />
+                    <Button Click="OnEmptyPaletteClick" Content="Command palette" />
+                </StackPanel>
+            </StackPanel>
+
+            <InfoBar
+                x:Name="NoticeBar"
+                MaxWidth="720"
+                Margin="0,8,0,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Canvas.ZIndex="5"
+                IsOpen="False"
+                Severity="Warning" />
+
+            <controls:SearchBar
+                x:Name="FindBar"
+                Margin="0,10,16,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Canvas.ZIndex="6" />
+        </Grid>
+
+        <!--  Status bar  -->
+        <Grid
+            x:Name="StatusBar"
+            Grid.Row="2"
+            Padding="14,0,14,0"
+            ColumnSpacing="18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Spacing="6" AutomationProperties.LiveSetting="Polite" x:Name="StateGroup">
+                <Ellipse x:Name="StateDot" Width="7" Height="7" VerticalAlignment="Center" Fill="{ThemeResource SfSuccessBrush}" />
+                <TextBlock x:Name="StateText" Style="{StaticResource SfStatusTextStyle}" Text="Starting" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                <FontIcon x:Name="ShellGlyph" FontFamily="{StaticResource SfIconFont}" FontSize="11" Foreground="{ThemeResource SfTextSecondaryBrush}" Glyph="&#xE756;" />
+                <TextBlock x:Name="ShellText" Style="{StaticResource SfStatusTextStyle}" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" x:Name="DirectoryGroup">
+                <FontIcon FontFamily="{StaticResource SfIconFont}" FontSize="11" Foreground="{ThemeResource SfTextSecondaryBrush}" Glyph="&#xE8B7;" />
+                <TextBlock x:Name="DirectoryText" Style="{StaticResource SfStatusTextStyle}" />
+            </StackPanel>
+            <TextBlock x:Name="SizeText" Grid.Column="3" Style="{StaticResource SfStatusTextStyle}" ToolTipService.ToolTip="Terminal columns × rows" />
+            <TextBlock x:Name="WorkspaceStatusText" Grid.Column="4" Style="{StaticResource SfStatusTextStyle}" />
+        </Grid>
+
+        <!--  Overlays  -->
+        <controls:SettingsView
+            x:Name="SettingsPanel"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Canvas.ZIndex="10"
+            Visibility="Collapsed" />
+
+        <controls:CommandPalette
+            x:Name="Palette"
+            Grid.Row="0"
+            Grid.RowSpan="3"
+            Canvas.ZIndex="20"
+            Visibility="Collapsed" />
+    </Grid>
+</UserControl>

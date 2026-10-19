@@ -1,0 +1,25 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+
+  <!--
+    Per-user MSI for ShellFlow. Build through build\publish.ps1 -Installer, which publishes the app first:
+      dotnet build installer -c Release -p:PublishDir=<folder build> -p:ProductVersion=<x.y.z> -p:InstallerPlatform=x64
+    WiX 5 is used deliberately: it is MS-RL licensed without the maintenance-fee EULA introduced in WiX 6.
+  -->
+  <PropertyGroup>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">0.1.0</ProductVersion>
+    <InstallerPlatform Condition="'$(InstallerPlatform)' == ''">x64</InstallerPlatform>
+    <OutputName>ShellFlow-$(ProductVersion)-$(InstallerPlatform)</OutputName>
+    <OutputType>Package</OutputType>
+    <DefineConstants>ProductVersion=$(ProductVersion);PublishDir=$(PublishDir)</DefineConstants>
+    <!-- ICE38/ICE64/ICE91 assume per-machine layouts; per-user installs into %LOCALAPPDATA% are valid MSI usage. -->
+    <!-- ICE03: some bundled runtime DLLs list several languages in their version resource; harmless for install. -->
+    <!-- ICE61: AllowSameVersionUpgrades is intentional so rebuilt packages of the same version can be reinstalled. -->
+    <SuppressIces>ICE03;ICE38;ICE61;ICE64;ICE91</SuppressIces>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
+  </ItemGroup>
+
+</Project>

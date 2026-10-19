@@ -1,0 +1,46 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a new tab with Git Bash
+        2. Split right
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ShellFlow version
+      description: Settings → About
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version and build
+      placeholder: Windows 11 24H2 (26100.1234)
+    validations:
+      required: true
+  - type: input
+    id: shell
+    attributes:
+      label: Shell
+      placeholder: Windows PowerShell 5.1 / PowerShell 7.5 / cmd / Git Bash / WSL Ubuntu
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log excerpt
+      description: From %LOCALAPPDATA%\ShellFlow\logs (logs never contain terminal input or output, but please review before posting).
+      render: text

@@ -1,0 +1,38 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+artifacts/
+publish/
+*.binlog
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userprefs
+*.rsuser
+launchSettings.local.json
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+
+# Test results
+TestResults/
+[Tt]est[Rr]esult*/
+coverage*/
+
+# Node (only used to vendor xterm.js)
+web/node_modules/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Local scratch
+*.tmp

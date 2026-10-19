@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!--
+    The renderer is a security boundary. It may only load its own bundled files and talk to native code
+    through window.chrome.webview. No network access, no frames, no plugins.
+    'unsafe-inline' for styles is required because xterm.js sizes rows and the cursor with inline styles.
+  -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="color-scheme" content="dark light">
+  <title>ShellFlow terminal</title>
+  <link rel="stylesheet" href="vendor/xterm.css">
+  <link rel="stylesheet" href="terminal.css">
+</head>
+<body>
+  <main id="terminal" aria-label="Terminal"></main>
+  <div id="picker" role="dialog" aria-label="Choose a folder" hidden>
+    <div class="picker-head">
+      <span id="picker-path"></span><span id="picker-filter"></span>
+    </div>
+    <div id="picker-list" role="listbox"></div>
+    <div class="picker-foot">↑↓ select · Enter cd · Tab/→ open · ← up · Esc</div>
+  </div>
+  <div id="status" role="status" aria-live="polite" hidden>
+    <span id="status-dot" aria-hidden="true"></span>
+    <span id="status-text"></span>
+  </div>
+  <script src="vendor/xterm.js"></script>
+  <script src="vendor/addon-fit.js"></script>
+  <script src="vendor/addon-search.js"></script>
+  <script src="vendor/addon-unicode11.js"></script>
+  <script src="vendor/addon-webgl.js"></script>
+  <script src="terminal.js"></script>
+</body>
+</html>

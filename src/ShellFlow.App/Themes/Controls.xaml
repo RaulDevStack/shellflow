@@ -1,0 +1,239 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Icon-only button used in the title bar, toolbar and overlays. Hover/pressed are subtle fills, focus uses system visuals. -->
+    <Style x:Key="SfIconButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Foreground" Value="{ThemeResource SfTextSecondaryBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource SfRadiusSmall}" />
+        <Setter Property="FontFamily" Value="{StaticResource SfIconFont}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
+                        <Grid.BackgroundTransition>
+                            <BrushTransition Duration="0:0:0.12" />
+                        </Grid.BackgroundTransition>
+                        <ContentPresenter
+                            x:Name="ContentPresenter"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            FontFamily="{TemplateBinding FontFamily}"
+                            FontSize="{TemplateBinding FontSize}"
+                            Foreground="{TemplateBinding Foreground}" />
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource SfHoverBrush}" />
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource SfTextPrimaryBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource SfPressedBrush}" />
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource SfTextPrimaryBrush}" />
+                                        <Setter Target="ContentPresenter.Opacity" Value="0.8" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="ContentPresenter.Opacity" Value="0.38" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SfSmallIconButtonStyle" TargetType="Button" BasedOn="{StaticResource SfIconButtonStyle}">
+        <Setter Property="Width" Value="22" />
+        <Setter Property="Height" Value="22" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="CornerRadius" Value="5" />
+    </Style>
+
+    <!-- Text button with an optional glyph, used for the workspace switcher. -->
+    <Style x:Key="SfGhostButtonStyle" TargetType="Button" BasedOn="{StaticResource SfIconButtonStyle}">
+        <Setter Property="Width" Value="NaN" />
+        <Setter Property="Padding" Value="8,0" />
+        <Setter Property="FontFamily" Value="{StaticResource ContentControlThemeFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource SfFontBody}" />
+    </Style>
+
+    <!-- Toggle used for search options (case, word, regex). Checked state uses the accent plus a border so it does not rely on color alone. -->
+    <Style x:Key="SfToggleIconButtonStyle" TargetType="ToggleButton">
+        <Setter Property="Width" Value="28" />
+        <Setter Property="Height" Value="26" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Foreground" Value="{ThemeResource SfTextSecondaryBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
+                        <Grid.BackgroundTransition>
+                            <BrushTransition Duration="0:0:0.12" />
+                        </Grid.BackgroundTransition>
+                        <ContentPresenter x:Name="ContentPresenter" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}" />
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource SfHoverBrush}" />
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource SfTextPrimaryBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource SfPressedBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Checked">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource SfAccentSubtleBrush}" />
+                                        <Setter Target="Root.BorderBrush" Value="{ThemeResource SfAccentBorderBrush}" />
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource SfAccentBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="CheckedPointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource SfAccentSubtleBrush}" />
+                                        <Setter Target="Root.BorderBrush" Value="{ThemeResource SfAccentBrush}" />
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource SfAccentBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="CheckedPressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource SfAccentSubtleBrush}" />
+                                        <Setter Target="Root.BorderBrush" Value="{ThemeResource SfAccentBorderBrush}" />
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource SfAccentBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+      Tab strip item: subtle fill on hover, raised surface when selected. The accent indicator lives in the item
+      template (bound to TabController.IndicatorOpacity) so selection is never shown by color alone.
+    -->
+    <Style x:Key="SfTabItemStyle" TargetType="ListViewItem">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0,0,4,0" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="CornerRadius" Value="{StaticResource SfRadiusControl}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Foreground" Value="{ThemeResource SfTextSecondaryBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListViewItem">
+                    <ListViewItemPresenter
+                        x:Name="Root"
+                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                        Control.IsTemplateFocusTarget="True"
+                        CheckBoxBrush="Transparent"
+                        CheckBrush="Transparent"
+                        CheckMode="Inline"
+                        ContentMargin="{TemplateBinding Padding}"
+                        ContentTransitions="{TemplateBinding ContentTransitions}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        DisabledOpacity="0.4"
+                        DragBackground="{ThemeResource SfSurfaceBrush}"
+                        DragForeground="{ThemeResource SfTextPrimaryBrush}"
+                        DragOpacity="0.85"
+                        FocusVisualMargin="{TemplateBinding FocusVisualMargin}"
+                        PlaceholderBackground="Transparent"
+                        PointerOverBackground="{ThemeResource SfHoverBrush}"
+                        PointerOverForeground="{ThemeResource SfTextPrimaryBrush}"
+                        PressedBackground="{ThemeResource SfPressedBrush}"
+                        ReorderHintOffset="8"
+                        SelectedBackground="{ThemeResource SfSurfaceBrush}"
+                        SelectedForeground="{ThemeResource SfTextPrimaryBrush}"
+                        SelectedPointerOverBackground="{ThemeResource SfSurfaceElevatedBrush}"
+                        SelectedPressedBackground="{ThemeResource SfSurfaceBrush}"
+                        SelectionCheckMarkVisualEnabled="False"
+                        SelectionIndicatorVisualEnabled="False" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Command palette / list rows. -->
+    <Style x:Key="SfListRowStyle" TargetType="ListViewItem">
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="Margin" Value="4,1" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="CornerRadius" Value="{StaticResource SfRadiusSmall}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <Style x:Key="SfShortcutChipTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, Segoe UI" />
+        <Setter Property="Foreground" Value="{ThemeResource SfTextSecondaryBrush}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="SfStatusTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource SfFontCaption}" />
+        <Setter Property="Foreground" Value="{ThemeResource SfTextSecondaryBrush}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <Style x:Key="SfSectionHeaderStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource SfFontSubtitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{ThemeResource SfTextPrimaryBrush}" />
+        <Setter Property="Margin" Value="0,8,0,4" />
+    </Style>
+
+    <Style x:Key="SfCaptionTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource SfFontCaption}" />
+        <Setter Property="Foreground" Value="{ThemeResource SfTextSecondaryBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <!-- A settings row: label + description on the left, control on the right. -->
+    <Style x:Key="SfSettingCardStyle" TargetType="Grid">
+        <Setter Property="Background" Value="{ThemeResource SfSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource SfBorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource SfRadiusPanel}" />
+        <Setter Property="Padding" Value="16,12" />
+        <Setter Property="ColumnSpacing" Value="16" />
+        <Setter Property="MinHeight" Value="60" />
+    </Style>
+</ResourceDictionary>

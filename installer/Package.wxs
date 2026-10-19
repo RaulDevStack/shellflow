@@ -1,0 +1,131 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <!--
+    Per-user install: no administrator prompt, installs to %LOCALAPPDATA%\Programs\ShellFlow, writes only HKCU.
+    Keep UpgradeCode stable forever so new versions replace old ones.
+  -->
+  <Package Name="ShellFlow"
+           Manufacturer="ShellFlow contributors"
+           Version="$(ProductVersion)"
+           UpgradeCode="C9B5F84F-94AE-4AD0-8FD4-94F7C465E32D"
+           Scope="perUser"
+           Compressed="yes">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of ShellFlow is already installed." AllowSameVersionUpgrades="yes" />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="ShellFlowIcon" SourceFile="..\src\ShellFlow.App\Assets\ShellFlow.ico" />
+    <Property Id="ARPPRODUCTICON" Value="ShellFlowIcon" />
+    <Property Id="ARPCONTACT" Value="ShellFlow contributors" />
+    <Property Id="ARPCOMMENTS" Value="Your terminal. In flow." />
+
+    <!-- Minimal wizard: welcome + license, then install. Finish page offers to launch ShellFlow. -->
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="Banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="Dialog.bmp" />
+    <ui:WixUI Id="WixUI_Minimal" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch ShellFlow" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[#ShellFlowExe]" />
+    <CustomAction Id="LaunchShellFlow" DllEntry="WixShellExec" Impersonate="yes" BinaryRef="Wix4UtilCA_X86" />
+    <UI>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchShellFlow"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed" />
+    </UI>
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="ProgramsFolder" Name="Programs">
+        <Directory Id="INSTALLFOLDER" Name="ShellFlow" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder" />
+
+    <Feature Id="Main" Title="ShellFlow" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="ShellIntegration" />
+      <ComponentRef Id="AppPath" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable">
+        <File Id="ShellFlowExe" Source="$(PublishDir)\ShellFlow.exe" KeyPath="yes" />
+        <RemoveFolder Id="RemoveInstallFolder" On="uninstall" />
+        <RemoveFolder Id="RemoveProgramsFolder" Directory="ProgramsFolder" On="uninstall" />
+      </Component>
+      <!-- Everything else from the folder publish (runtime, Windows App SDK, renderer assets). -->
+      <Files Include="$(PublishDir)\**">
+        <Exclude Files="$(PublishDir)\ShellFlow.exe" />
+        <Exclude Files="$(PublishDir)\**\*.pdb" />
+      </Files>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="StartMenuShortcut" Directory="ProgramMenuFolder" Guid="5B2C61D3-3F7E-4E4A-9E44-7D4B2E6F1A10">
+      <Shortcut Id="ShellFlowStartMenu"
+                Name="ShellFlow"
+                Description="Your terminal. In flow."
+                Target="[INSTALLFOLDER]ShellFlow.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="ShellFlowIcon" />
+      <RegistryValue Root="HKCU" Key="Software\ShellFlow" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <!--
+      "Open ShellFlow here (new tab / new pane)" in Explorer for folders, folder backgrounds and drives. If ShellFlow is already running, the request goes to that window (single instance).
+      On Windows 11 these appear under "Show more options" (or Shift+right-click); the compact top-level menu only
+      accepts packaged (MSIX) extensions.
+    -->
+    <Component Id="ShellIntegration" Directory="INSTALLFOLDER" Guid="8E1F0B7A-2C5D-4F19-A3B6-6C0D9E2F4B21">
+      <RegistryKey Root="HKCU" Key="Software\Classes\Directory\shell\ShellFlowTab">
+        <RegistryValue Type="string" Value="Open ShellFlow here (new tab)" />
+        <RegistryValue Name="Icon" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot;,0" />
+        <RegistryValue Key="command" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot; --new-tab -d &quot;%V&quot;" />
+      </RegistryKey>
+      <RegistryKey Root="HKCU" Key="Software\Classes\Directory\shell\ShellFlowPane">
+        <RegistryValue Type="string" Value="Open ShellFlow here (new pane)" />
+        <RegistryValue Name="Icon" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot;,0" />
+        <RegistryValue Key="command" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot; --new-pane -d &quot;%V&quot;" />
+      </RegistryKey>
+      <RegistryKey Root="HKCU" Key="Software\Classes\Directory\Background\shell\ShellFlowTab">
+        <RegistryValue Type="string" Value="Open ShellFlow here (new tab)" />
+        <RegistryValue Name="Icon" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot;,0" />
+        <RegistryValue Key="command" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot; --new-tab -d &quot;%V&quot;" />
+      </RegistryKey>
+      <RegistryKey Root="HKCU" Key="Software\Classes\Directory\Background\shell\ShellFlowPane">
+        <RegistryValue Type="string" Value="Open ShellFlow here (new pane)" />
+        <RegistryValue Name="Icon" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot;,0" />
+        <RegistryValue Key="command" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot; --new-pane -d &quot;%V&quot;" />
+      </RegistryKey>
+      <RegistryKey Root="HKCU" Key="Software\Classes\Drive\shell\ShellFlowTab">
+        <RegistryValue Type="string" Value="Open ShellFlow here (new tab)" />
+        <RegistryValue Name="Icon" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot;,0" />
+        <RegistryValue Key="command" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot; --new-tab -d &quot;%V&quot;" />
+      </RegistryKey>
+      <RegistryKey Root="HKCU" Key="Software\Classes\Drive\shell\ShellFlowPane">
+        <RegistryValue Type="string" Value="Open ShellFlow here (new pane)" />
+        <RegistryValue Name="Icon" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot;,0" />
+        <RegistryValue Key="command" Type="string" Value="&quot;[INSTALLFOLDER]ShellFlow.exe&quot; --new-pane -d &quot;%V&quot;" />
+      </RegistryKey>
+      <RegistryValue Root="HKCU" Key="Software\ShellFlow" Name="ShellIntegration" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <!-- Lets "shellflow" start the app from Win+R and from other shells' Start-Process / start commands. -->
+    <Component Id="AppPath" Directory="INSTALLFOLDER" Guid="2D7A4C1E-9B3F-4E8D-B5A2-1F6C8E0D3A47">
+      <RegistryKey Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\ShellFlow.exe">
+        <RegistryValue Type="string" Value="[INSTALLFOLDER]ShellFlow.exe" />
+        <RegistryValue Name="Path" Type="string" Value="[INSTALLFOLDER]" />
+      </RegistryKey>
+      <RegistryValue Root="HKCU" Key="Software\ShellFlow" Name="AppPath" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+  </Fragment>
+</Wix>
