@@ -30,6 +30,19 @@ public sealed record StartupArguments(string? Directory, string? ProfileId, IRea
     /// <summary>True when a running instance should open a new terminal for this request.</summary>
     public bool RequestsTerminal => Mode != LaunchMode.Default || Directory is not null || ProfileId is not null || Script is not null;
 
+    public const string ElevateOption = "--elevate";
+
+    /// <summary>
+    /// Splits off <c>--elevate</c> (used by the "as administrator" Explorer entries). The remaining arguments are what
+    /// the elevated ShellFlow should receive.
+    /// </summary>
+    public static (bool Elevate, string[] Remaining) ExtractElevate(IReadOnlyList<string> args)
+    {
+        ArgumentNullException.ThrowIfNull(args);
+        var remaining = args.Where(a => !string.Equals(a, ElevateOption, StringComparison.OrdinalIgnoreCase)).ToArray();
+        return (remaining.Length != args.Count, remaining);
+    }
+
     public static bool IsScript(string? path) =>
         path is not null && ScriptExtensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase);
 

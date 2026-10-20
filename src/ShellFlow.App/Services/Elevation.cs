@@ -21,22 +21,35 @@ public static class Elevation
     /// </summary>
     public static bool LaunchElevated(string? directory, string? profileId)
     {
-        var start = new ProcessStartInfo(Environment.ProcessPath ?? throw new InvalidOperationException("Unknown executable path."))
-        {
-            UseShellExecute = true,
-            Verb = "runas",
-        };
-
+        var args = new List<string>();
         if (!string.IsNullOrWhiteSpace(directory) && Directory.Exists(directory))
         {
-            start.ArgumentList.Add("-d");
-            start.ArgumentList.Add(directory);
+            args.Add("-d");
+            args.Add(directory);
         }
 
         if (!string.IsNullOrWhiteSpace(profileId))
         {
-            start.ArgumentList.Add("-p");
-            start.ArgumentList.Add(profileId);
+            args.Add("-p");
+            args.Add(profileId);
+        }
+
+        return LaunchElevated(args);
+    }
+
+    /// <summary>Starts ShellFlow elevated with the given command-line arguments. Returns false if UAC was cancelled.</summary>
+    public static bool LaunchElevated(IEnumerable<string> arguments)
+    {
+        var start = new ProcessStartInfo(Environment.ProcessPath ?? throw new InvalidOperationException("Unknown executable path."))
+        {
+            UseShellExecute = true,
+            Verb = "runas",
+            WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+        };
+
+        foreach (var argument in arguments)
+        {
+            start.ArgumentList.Add(argument);
         }
 
         try

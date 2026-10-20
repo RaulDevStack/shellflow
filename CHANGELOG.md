@@ -9,6 +9,9 @@ and versions follow [Semantic Versioning](https://semver.org/).
 - *New administrator window* (`Ctrl+Shift+F12`, command palette, new-tab menu): opens an elevated ShellFlow window
   through UAC with the focused pane's shell and folder, marked with an *Administrator* badge. It runs as a separate
   instance with its own WebView2 data folder and workspace.
+- Explorer entries *Open ShellFlow here as administrator* (folders, folder backgrounds, drives) and *Run as
+  administrator in ShellFlow* (`.bat` / `.cmd`), with the UAC shield; `--elevate` command-line option. Requests go to
+  an existing administrator window as new tabs.
 
 ## [0.1.1] - 2026-10-19
 

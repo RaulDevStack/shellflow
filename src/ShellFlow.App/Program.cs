@@ -13,6 +13,9 @@ public static class Program
 {
     internal static SingleInstance? Instance { get; private set; }
 
+    /// <summary>Command-line arguments for this launch, without internal flags such as --elevate.</summary>
+    internal static IReadOnlyList<string> Arguments { get; private set; } = [];
+
     [STAThread]
     public static int Main(string[] args)
     {
@@ -28,7 +31,24 @@ public static class Program
             return 0;
         }
 
-        Instance = SingleInstance.Acquire(paths, args);
+        // "as administrator" entries in Explorer: re-launch through UAC (Explorer verbs cannot elevate by themselves).
+        var (elevate, remaining) = Core.StartupArguments.ExtractElevate(args);
+        if (elevate && !Elevation.IsElevated)
+        {
+            try
+            {
+                Elevation.LaunchElevated(remaining);
+            }
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                Log.Error("Could not start ShellFlow as administrator", ex);
+            }
+
+            return 0;
+        }
+
+        Arguments = remaining;
+        Instance = SingleInstance.Acquire(paths, remaining);
         if (Instance is null)
         {
             Log.Info("Forwarded launch to the running ShellFlow window.");

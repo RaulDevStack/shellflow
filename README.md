@@ -122,7 +122,9 @@ Run `ShellFlow-<version>-x64.msi`. It installs for the current user only (no adm
 - **ShellFlow** to the Start menu,
 - **Open ShellFlow here (new tab)** and **Open ShellFlow here (new pane)** when right-clicking a folder, the empty
   space inside a folder, or a drive in Explorer. If ShellFlow is already open, the folder opens as a new tab or as a
-  new pane in the current tab of that window — ShellFlow never opens twice. (On Windows 11 these entries are under
+  new pane in the current tab of that window — ShellFlow never opens twice. **Open ShellFlow here as administrator**
+  asks for UAC confirmation and opens the folder in the administrator window (as a new tab if one is already open);
+  `.bat` / `.cmd` files also get **Run as administrator in ShellFlow**. (On Windows 11 these entries are under
   *Show more options*, or Shift+right-click — the compact Windows 11 menu only accepts packaged MSIX extensions.)
 - `shellflow` as a command for Win+R,
 - an entry in Settings → Apps → Installed apps, where it can be uninstalled.
@@ -134,6 +136,7 @@ New versions upgrade in place. Uninstalling keeps your settings in `%LOCALAPPDAT
 ```text
 ShellFlow.exe [--new-tab | --new-pane] [-d|--directory <folder>] [-p|--profile <id>] [<folder>]
 ShellFlow.exe --run <script.bat|script.cmd>
+ShellFlow.exe --elevate [other options]      # ask for UAC and run them in the administrator window
 ```
 
 For example `shellflow -d C:\src -p cmd` opens Command Prompt in `C:\src`. When ShellFlow is already running the

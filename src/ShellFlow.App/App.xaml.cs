@@ -33,7 +33,7 @@ public partial class App : Application
         // WebView2 cannot share a data folder between elevated and non-elevated processes running at the same time.
         TerminalWebEnvironment.Configure(Elevation.IsElevated ? paths.WebViewDataDirectory + "-Admin" : paths.WebViewDataDirectory);
         KeepScriptAssociationCurrent();
-        var startup = Core.StartupArguments.Parse(Environment.GetCommandLineArgs().Skip(1).ToList());
+        var startup = Core.StartupArguments.Parse(Program.Arguments);
         var services = AppServices.Create(paths, startup);
 
         _window = new MainWindow(services);
