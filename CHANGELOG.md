@@ -5,6 +5,8 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-20
+
 ### Added
 - *New administrator window* (`Ctrl+Shift+F12`, command palette, new-tab menu): opens an elevated ShellFlow window
   through UAC with the focused pane's shell and folder, marked with an *Administrator* badge. It runs as a separate
