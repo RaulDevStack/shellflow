@@ -59,6 +59,10 @@ Get the latest version from the [**Releases page**](https://github.com/RaulDevSt
 - **cd folder picker.** Type `cd` (optionally part of a path) and press Tab to browse folders with the arrow keys:
   Enter changes directory, Tab/→ opens a folder, ← goes up (all the way to the drive list), typing filters.
 - **One window.** Launching ShellFlow again (Start menu, Win+R, Explorer) reuses the open window.
+- **Run as administrator.** *New administrator window* (`Ctrl+Shift+F12`, the command palette, or the ⌄ menu next to
+  **+**) opens an elevated ShellFlow window after the UAC prompt, with the current shell and folder. It is marked with an
+  *Administrator* badge and stays separate from your normal window (Windows does not allow mixing elevated and normal
+  shells in one window).
 - **Batch files.** Right-click a `.bat` / `.cmd` → *Run in ShellFlow*, or turn on *Open .bat and .cmd files with
   ShellFlow* (Settings → General) to run them on double-click. Each script runs in its own tab, in its own folder, and
   the tab stays open with the exit code when it finishes (Enter runs it again). Turning the option off — or

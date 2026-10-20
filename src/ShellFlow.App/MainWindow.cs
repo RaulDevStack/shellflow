@@ -26,7 +26,7 @@ public sealed class MainWindow : Window
     public MainWindow(AppServices services)
     {
         _services = services;
-        Title = "ShellFlow";
+        Title = Elevation.IsElevated ? "Administrator: ShellFlow" : "ShellFlow";
         _view = new MainView(services);
         Content = _view;
 

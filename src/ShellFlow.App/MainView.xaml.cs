@@ -108,6 +108,7 @@ public sealed partial class MainView : UserControl
 
     public async Task StartAsync()
     {
+        AdminBadge.Visibility = Elevation.IsElevated ? Visibility.Visible : Visibility.Collapsed;
         BuildProfileMenu();
         UpdateToolTips();
         ApplyMotion();
@@ -178,6 +179,7 @@ public sealed partial class MainView : UserControl
         Bind(CommandIds.OpenSettings, () => SettingsPanel.Open(_services.Theme.AnimationsEnabled));
         Bind(CommandIds.ToggleTheme, ToggleTheme);
         Bind(CommandIds.ShowShortcuts, () => SettingsPanel.Open(_services.Theme.AnimationsEnabled, SettingsView.ShortcutsSection));
+        Bind(CommandIds.NewAdminWindow, OpenAdministratorWindow, () => !Elevation.IsElevated);
 
         Bind(CommandIds.SwitchWorkspace, OpenWorkspacePalette);
         Bind(CommandIds.NewWorkspace, () => _ = NewWorkspaceAsync());
@@ -293,6 +295,25 @@ public sealed partial class MainView : UserControl
         }
 
         _workspace.NewTab(profile, directory);
+    }
+
+    /// <summary>
+    /// Opens an elevated ShellFlow window (after the UAC prompt) with the focused pane's shell and folder. The current
+    /// window and its shells are not affected.
+    /// </summary>
+    private void OpenAdministratorWindow()
+    {
+        var pane = _workspace.FocusedPane;
+        var profileId = pane is { Leaf.Script: null } ? pane.Profile.Id : null;
+        try
+        {
+            Elevation.LaunchElevated(pane?.CurrentFolder, profileId);
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            Log.Error("Could not start an administrator window", ex);
+            ShowNotice($"Could not open an administrator window: {ex.Message}", InfoBarSeverity.Error);
+        }
     }
 
     /// <summary>Scripts always run in Command Prompt, like a double-click in Explorer.</summary>
@@ -568,6 +589,18 @@ public sealed partial class MainView : UserControl
         }
 
         ProfileMenu.Items.Add(new MenuFlyoutSeparator());
+        if (!Elevation.IsElevated)
+        {
+            var admin = new MenuFlyoutItem
+            {
+                Text = "New administrator window",
+                Icon = new FontIcon { Glyph = "" },
+                KeyboardAcceleratorTextOverride = _services.Commands.GetShortcut(CommandIds.NewAdminWindow)?.ToString() ?? string.Empty,
+            };
+            admin.Click += (_, _) => Execute(CommandIds.NewAdminWindow);
+            ProfileMenu.Items.Add(admin);
+        }
+
         var settings = new MenuFlyoutItem { Text = "Manage shells…", Icon = new FontIcon { Glyph = "" } };
         settings.Click += (_, _) => SettingsPanel.Open(_services.Theme.AnimationsEnabled, SettingsView.ProfilesSection);
         ProfileMenu.Items.Add(settings);
@@ -787,6 +820,15 @@ public sealed partial class MainView : UserControl
             }
         }
 
+        // The administrator window keeps its own workspace so it never overwrites the normal window's.
+        if (Elevation.IsElevated)
+        {
+            document.Id = "administrator";
+            document.Name = "Administrator";
+            await NormalizeAsync(document, notes);
+            return document;
+        }
+
         var lastId = _services.Workspaces.LoadState().LastWorkspaceId;
         if (lastId is not null && SafeLoad(lastId) is { Status: not LoadStatus.Recovered } last)
         {
@@ -948,6 +990,11 @@ public sealed partial class MainView : UserControl
 
     private void RememberWorkspace(string id)
     {
+        if (Elevation.IsElevated)
+        {
+            return; // The normal window decides which workspace is "last used".
+        }
+
         try
         {
             var state = _services.Workspaces.LoadState();

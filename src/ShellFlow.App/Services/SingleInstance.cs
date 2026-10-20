@@ -148,11 +148,14 @@ public sealed partial class SingleInstance : IDisposable
         return false;
     }
 
-    /// <summary>Per user and per data folder, so test instances with SHELLFLOW_DATA_DIR stay independent.</summary>
+    /// <summary>
+    /// Per user, per data folder (so test instances with SHELLFLOW_DATA_DIR stay independent) and per elevation, so
+    /// launches from Explorer never land in an administrator window and the administrator window stays separate.
+    /// </summary>
     private static string Key(AppPaths paths)
     {
         var sid = WindowsIdentity.GetCurrent().User?.Value ?? Environment.UserName;
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{sid}|{paths.Root.ToUpperInvariant()}"));
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{sid}|{paths.Root.ToUpperInvariant()}|{(Elevation.IsElevated ? "admin" : "user")}"));
         return Convert.ToHexString(hash, 0, 8);
     }
 

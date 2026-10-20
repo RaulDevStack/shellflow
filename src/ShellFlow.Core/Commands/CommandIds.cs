@@ -39,6 +39,7 @@ public static class CommandIds
     public const string OpenSettings = "app.settings";
     public const string ToggleTheme = "app.toggleTheme";
     public const string ShowShortcuts = "app.shortcuts";
+    public const string NewAdminWindow = "app.newAdminWindow";
 
     public const string SwitchWorkspace = "workspace.switch";
     public const string NewWorkspace = "workspace.new";

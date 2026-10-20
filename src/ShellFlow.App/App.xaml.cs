@@ -28,9 +28,10 @@ public partial class App : Application
     {
         var paths = AppPaths.Default;
         Log.Initialize(paths.LogsDirectory);
-        Log.Info($"ShellFlow {typeof(App).Assembly.GetName().Version} starting on Windows {Environment.OSVersion.Version}.");
+        Log.Info($"ShellFlow {typeof(App).Assembly.GetName().Version} starting on Windows {Environment.OSVersion.Version}{(Elevation.IsElevated ? " as administrator" : string.Empty)}.");
 
-        TerminalWebEnvironment.Configure(paths.WebViewDataDirectory);
+        // WebView2 cannot share a data folder between elevated and non-elevated processes running at the same time.
+        TerminalWebEnvironment.Configure(Elevation.IsElevated ? paths.WebViewDataDirectory + "-Admin" : paths.WebViewDataDirectory);
         KeepScriptAssociationCurrent();
         var startup = Core.StartupArguments.Parse(Environment.GetCommandLineArgs().Skip(1).ToList());
         var services = AppServices.Create(paths, startup);

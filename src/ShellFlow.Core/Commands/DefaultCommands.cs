@@ -44,6 +44,7 @@ public static class DefaultCommands
         new(CommandIds.OpenSettings, "Settings", "General", "Ctrl+Comma", "") { Keywords = "preferences options configure" },
         new(CommandIds.ToggleTheme, "Toggle light / dark theme", "General", null, "") { Keywords = "change theme appearance" },
         new(CommandIds.ShowShortcuts, "Keyboard shortcuts", "General", "Ctrl+Shift+Slash", "") { Keywords = "keys bindings help" },
+        new(CommandIds.NewAdminWindow, "New administrator window", "General", "Ctrl+Shift+F12", "") { Keywords = "run as administrator admin elevated elevate sudo uac" },
 
         new(CommandIds.SwitchWorkspace, "Switch workspace…", "Workspaces", "Ctrl+Shift+K", "") { Keywords = "open restore" },
         new(CommandIds.NewWorkspace, "New workspace…", "Workspaces", null, ""),
