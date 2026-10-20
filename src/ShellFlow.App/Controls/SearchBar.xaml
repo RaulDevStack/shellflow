@@ -1,0 +1,107 @@
+<UserControl
+    x:Class="ShellFlow.App.Controls.SearchBar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid
+        x:Name="Card"
+        Padding="6,4"
+        Background="{ThemeResource SfSurfaceElevatedBrush}"
+        BorderBrush="{ThemeResource SfBorderSubtleBrush}"
+        BorderThickness="1"
+        ColumnSpacing="2"
+        CornerRadius="{StaticResource SfRadiusPanel}">
+        <Grid.Shadow>
+            <ThemeShadow />
+        </Grid.Shadow>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <TextBox
+            x:Name="QueryBox"
+            MinHeight="28"
+            Padding="8,4,8,4"
+            VerticalAlignment="Center"
+            AutomationProperties.Name="Find in terminal"
+            FontSize="13"
+            PlaceholderText="Find"
+            PreviewKeyDown="OnQueryPreviewKeyDown"
+            TextChanged="OnQueryChanged" />
+
+        <TextBlock
+            x:Name="CountText"
+            Grid.Column="1"
+            MinWidth="58"
+            Margin="8,0,4,0"
+            HorizontalTextAlignment="Center"
+            Style="{StaticResource SfStatusTextStyle}"
+            Text="" />
+
+        <ToggleButton
+            x:Name="CaseToggle"
+            Grid.Column="2"
+            AutomationProperties.Name="Match case"
+            Click="OnOptionChanged"
+            Content="Aa"
+            Style="{StaticResource SfToggleIconButtonStyle}"
+            ToolTipService.ToolTip="Match case" />
+        <ToggleButton
+            x:Name="WordToggle"
+            Grid.Column="3"
+            AutomationProperties.Name="Match whole word"
+            Click="OnOptionChanged"
+            Content="ab"
+            Style="{StaticResource SfToggleIconButtonStyle}"
+            ToolTipService.ToolTip="Match whole word" />
+        <ToggleButton
+            x:Name="RegexToggle"
+            Grid.Column="4"
+            AutomationProperties.Name="Use regular expression"
+            Click="OnOptionChanged"
+            Content=".*"
+            Style="{StaticResource SfToggleIconButtonStyle}"
+            ToolTipService.ToolTip="Use regular expression" />
+
+        <Rectangle Grid.Column="5" Width="1" Height="16" Margin="4,0" Fill="{ThemeResource SfBorderSubtleBrush}" />
+
+        <Button
+            Grid.Column="6"
+            Width="28"
+            Height="26"
+            AutomationProperties.Name="Previous match"
+            Click="OnPreviousClick"
+            Content="&#xE70E;"
+            FontSize="11"
+            Style="{StaticResource SfIconButtonStyle}"
+            ToolTipService.ToolTip="Previous match (Shift+Enter)" />
+        <Button
+            Grid.Column="7"
+            Width="28"
+            Height="26"
+            AutomationProperties.Name="Next match"
+            Click="OnNextClick"
+            Content="&#xE70D;"
+            FontSize="11"
+            Style="{StaticResource SfIconButtonStyle}"
+            ToolTipService.ToolTip="Next match (Enter)" />
+        <Button
+            Grid.Column="8"
+            Width="28"
+            Height="26"
+            AutomationProperties.Name="Close find"
+            Click="OnCloseClick"
+            Content="&#xE711;"
+            FontSize="11"
+            Style="{StaticResource SfIconButtonStyle}"
+            ToolTipService.ToolTip="Close (Esc)" />
+    </Grid>
+</UserControl>

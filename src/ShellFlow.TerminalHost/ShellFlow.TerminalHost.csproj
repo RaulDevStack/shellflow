@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(ShellFlowWinTfm)</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <RootNamespace>ShellFlow.TerminalHost</RootNamespace>
+    <UseWinUI>true</UseWinUI>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <!-- Required for resources.pri generation when the app is published as a single file. -->
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <!-- Only the app bundles the Windows App SDK runtime; a library doing so duplicates files on publish. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="$(ShellFlowWindowsAppSdkVersion)" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="$(ShellFlowWindowsSdkBuildToolsVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShellFlow.Core\ShellFlow.Core.csproj" />
+    <ProjectReference Include="..\ShellFlow.Terminal\ShellFlow.Terminal.csproj" />
+  </ItemGroup>
+
+  <!-- Renderer assets are served to WebView2 from the output folder through a virtual host mapping. -->
+  <ItemGroup>
+    <Content Include="Assets\terminal\**\*" CopyToOutputDirectory="PreserveNewest" Link="Assets\terminal\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>
