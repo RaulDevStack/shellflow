@@ -190,6 +190,11 @@
         </Setter>
     </Style>
 
+    <!-- The same tab item stacked vertically in the side panel. -->
+    <Style x:Key="SfSideTabItemStyle" BasedOn="{StaticResource SfTabItemStyle}" TargetType="ListViewItem">
+        <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+
     <!-- Command palette / list rows. -->
     <Style x:Key="SfListRowStyle" TargetType="ListViewItem">
         <Setter Property="Padding" Value="10,0" />

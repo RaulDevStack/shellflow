@@ -5,6 +5,12 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-10-22
+
+### Added
+- *Tab position* setting (Settings → Appearance): tabs stacked in a side panel on the left (new default), where
+  switching tabs slides up and down, or in the title bar as before, sliding sideways.
+
 ## [0.1.2] - 2026-10-20
 
 ### Added

@@ -5,6 +5,15 @@
     xmlns:controls="using:ShellFlow.App.Controls"
     xmlns:ws="using:ShellFlow.App.Workspace">
 
+    <UserControl.Resources>
+        <ItemsPanelTemplate x:Key="TopTabsPanel">
+            <ItemsStackPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+        <ItemsPanelTemplate x:Key="SideTabsPanel">
+            <ItemsStackPanel Orientation="Vertical" />
+        </ItemsPanelTemplate>
+    </UserControl.Resources>
+
     <Grid x:Name="RootGrid" Background="{ThemeResource SfWindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
@@ -83,30 +92,41 @@
                 </StackPanel>
             </Button>
 
-            <Grid x:Name="TabArea" Grid.Column="2" HorizontalAlignment="Left">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <StackPanel
+                x:Name="Toolbar"
+                Grid.Column="3"
+                Margin="8,0,6,0"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="2">
+                <Button x:Name="SplitRightButton" AutomationProperties.Name="Split right" Click="OnToolbarClick" Content="&#xE90D;" Style="{StaticResource SfIconButtonStyle}" Tag="pane.splitRight" />
+                <Button x:Name="SplitDownButton" AutomationProperties.Name="Split down" Click="OnToolbarClick" Content="&#xE90E;" Style="{StaticResource SfIconButtonStyle}" Tag="pane.splitDown" />
+                <Rectangle Width="1" Height="16" Margin="4,0" Fill="{ThemeResource SfBorderSubtleBrush}" />
+                <Button x:Name="SearchButton" AutomationProperties.Name="Find" Click="OnToolbarClick" Content="&#xE721;" Style="{StaticResource SfIconButtonStyle}" Tag="terminal.search" />
+                <Button x:Name="PaletteButton" AutomationProperties.Name="Command palette" Click="OnToolbarClick" Content="&#xE945;" Style="{StaticResource SfIconButtonStyle}" Tag="app.commandPalette" />
+                <Button x:Name="SettingsButton" AutomationProperties.Name="Settings" Click="OnToolbarClick" Content="&#xE713;" Style="{StaticResource SfIconButtonStyle}" Tag="app.settings" />
+            </StackPanel>
+        </Grid>
+
+        <!--
+          Side panel (column 0) and workspace area. The tab area lives either in the title bar's free column or in this
+          side panel, depending on Appearance.TabPosition; ApplyTabPosition moves it and adjusts its layout.
+        -->
+        <Grid x:Name="BodyGrid" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid x:Name="TabArea">
                 <ListView
                     x:Name="TabStrip"
-                    Height="34"
-                    VerticalAlignment="Center"
                     AllowDrop="True"
                     AutomationProperties.Name="Tabs"
                     CanDragItems="True"
                     CanReorderItems="True"
-                    ItemContainerStyle="{StaticResource SfTabItemStyle}"
-                    ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                    ScrollViewer.HorizontalScrollMode="Enabled"
-                    ScrollViewer.VerticalScrollMode="Disabled"
                     SelectionChanged="OnTabStripSelectionChanged"
                     SelectionMode="Single">
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
                     <ListView.ItemContainerTransitions>
                         <TransitionCollection x:Name="TabTransitions">
                             <AddDeleteThemeTransition />
@@ -164,6 +184,7 @@
                                     Glyph="&#xE7BA;"
                                     ToolTipService.ToolTip="A shell in this tab has exited"
                                     Visibility="{x:Bind ExitedVisibility, Mode=OneWay}" />
+                                <!--  Selection indicator: an underline in the title bar, a bar at the left edge in the side panel.  -->
                                 <Rectangle
                                     Grid.ColumnSpan="5"
                                     Width="18"
@@ -174,6 +195,22 @@
                                     Fill="{ThemeResource SfAccentBrush}"
                                     IsHitTestVisible="False"
                                     Opacity="{x:Bind IndicatorOpacity, Mode=OneWay}"
+                                    RadiusX="1"
+                                    RadiusY="1">
+                                    <Rectangle.OpacityTransition>
+                                        <ScalarTransition Duration="0:0:0.16" />
+                                    </Rectangle.OpacityTransition>
+                                </Rectangle>
+                                <Rectangle
+                                    Grid.ColumnSpan="5"
+                                    Width="2"
+                                    Height="16"
+                                    Margin="-8,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Fill="{ThemeResource SfAccentBrush}"
+                                    IsHitTestVisible="False"
+                                    Opacity="{x:Bind SideIndicatorOpacity, Mode=OneWay}"
                                     RadiusX="1"
                                     RadiusY="1">
                                     <Rectangle.OpacityTransition>
@@ -197,9 +234,7 @@
 
                 <StackPanel
                     x:Name="NewTabButtons"
-                    Grid.Column="1"
-                    Margin="2,0,0,0"
-                    VerticalAlignment="Center"
+                    HorizontalAlignment="Left"
                     Orientation="Horizontal">
                     <Button
                         x:Name="NewTabButton"
@@ -222,57 +257,42 @@
                 </StackPanel>
             </Grid>
 
-            <StackPanel
-                x:Name="Toolbar"
-                Grid.Column="3"
-                Margin="8,0,6,0"
-                VerticalAlignment="Center"
-                Orientation="Horizontal"
-                Spacing="2">
-                <Button x:Name="SplitRightButton" AutomationProperties.Name="Split right" Click="OnToolbarClick" Content="&#xE90D;" Style="{StaticResource SfIconButtonStyle}" Tag="pane.splitRight" />
-                <Button x:Name="SplitDownButton" AutomationProperties.Name="Split down" Click="OnToolbarClick" Content="&#xE90E;" Style="{StaticResource SfIconButtonStyle}" Tag="pane.splitDown" />
-                <Rectangle Width="1" Height="16" Margin="4,0" Fill="{ThemeResource SfBorderSubtleBrush}" />
-                <Button x:Name="SearchButton" AutomationProperties.Name="Find" Click="OnToolbarClick" Content="&#xE721;" Style="{StaticResource SfIconButtonStyle}" Tag="terminal.search" />
-                <Button x:Name="PaletteButton" AutomationProperties.Name="Command palette" Click="OnToolbarClick" Content="&#xE945;" Style="{StaticResource SfIconButtonStyle}" Tag="app.commandPalette" />
-                <Button x:Name="SettingsButton" AutomationProperties.Name="Settings" Click="OnToolbarClick" Content="&#xE713;" Style="{StaticResource SfIconButtonStyle}" Tag="app.settings" />
-            </StackPanel>
-        </Grid>
+            <!--  Workspace area  -->
+            <Grid x:Name="WorkspaceArea" Grid.Column="1" Margin="6,0,6,0">
+                <Grid x:Name="TabHostContainer" />
 
-        <!--  Workspace area  -->
-        <Grid Grid.Row="1" Margin="6,0,6,0">
-            <Grid x:Name="TabHostContainer" />
-
-            <StackPanel
-                x:Name="EmptyState"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Spacing="14"
-                Visibility="Collapsed">
-                <Image Width="56" Height="56" Opacity="0.9" Source="ms-appx:///Assets/ShellFlow.png" AutomationProperties.AccessibilityView="Raw" />
-                <TextBlock HorizontalAlignment="Center" FontSize="{StaticResource SfFontSubtitle}" FontWeight="SemiBold" Text="No terminals open" />
-                <TextBlock x:Name="EmptyHintText" HorizontalAlignment="Center" Style="{StaticResource SfCaptionTextStyle}" TextAlignment="Center" />
-                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
-                    <Button Click="OnNewTabClick" Content="New tab" Style="{StaticResource AccentButtonStyle}" />
-                    <Button Click="OnEmptyPaletteClick" Content="Command palette" />
+                <StackPanel
+                    x:Name="EmptyState"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="14"
+                    Visibility="Collapsed">
+                    <Image Width="56" Height="56" Opacity="0.9" Source="ms-appx:///Assets/ShellFlow.png" AutomationProperties.AccessibilityView="Raw" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="{StaticResource SfFontSubtitle}" FontWeight="SemiBold" Text="No terminals open" />
+                    <TextBlock x:Name="EmptyHintText" HorizontalAlignment="Center" Style="{StaticResource SfCaptionTextStyle}" TextAlignment="Center" />
+                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
+                        <Button Click="OnNewTabClick" Content="New tab" Style="{StaticResource AccentButtonStyle}" />
+                        <Button Click="OnEmptyPaletteClick" Content="Command palette" />
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
 
-            <InfoBar
-                x:Name="NoticeBar"
-                MaxWidth="720"
-                Margin="0,8,0,0"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Canvas.ZIndex="5"
-                IsOpen="False"
-                Severity="Warning" />
+                <InfoBar
+                    x:Name="NoticeBar"
+                    MaxWidth="720"
+                    Margin="0,8,0,0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Canvas.ZIndex="5"
+                    IsOpen="False"
+                    Severity="Warning" />
 
-            <controls:SearchBar
-                x:Name="FindBar"
-                Margin="0,10,16,0"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                Canvas.ZIndex="6" />
+                <controls:SearchBar
+                    x:Name="FindBar"
+                    Margin="0,10,16,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Canvas.ZIndex="6" />
+            </Grid>
         </Grid>
 
         <!--  Status bar  -->

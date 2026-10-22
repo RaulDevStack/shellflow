@@ -229,6 +229,20 @@
                                 <ComboBoxItem Content="Subtle" Tag="Subtle" />
                             </ComboBox>
                         </Grid>
+                        <Grid Style="{StaticResource SfSettingCardStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Tab position" />
+                                <TextBlock Style="{StaticResource SfCaptionTextStyle}" Text="Left: tabs stacked in a side panel, switching slides up and down. Top: tabs in the title bar, switching slides sideways." />
+                            </StackPanel>
+                            <ComboBox x:Name="TabPositionBox" Grid.Column="1" MinWidth="200" AutomationProperties.Name="Tab position" SelectionChanged="OnAppearanceChanged">
+                                <ComboBoxItem Content="Left (side panel)" Tag="Left" />
+                                <ComboBoxItem Content="Top (title bar)" Tag="Top" />
+                            </ComboBox>
+                        </Grid>
                     </StackPanel>
 
                     <!--  Terminal  -->

@@ -130,6 +130,7 @@ public sealed partial class SettingsView : UserControl
             SelectByTag(ThemeBox, Settings.Appearance.Theme.ToString());
             SelectByTag(MotionBox, Settings.Appearance.Animations.ToString());
             SelectByTag(MotionStyleBox, Settings.Appearance.MotionStyle.ToString());
+            SelectByTag(TabPositionBox, Settings.Appearance.TabPosition.ToString());
             foreach (var swatch in AccentPanel.Children.OfType<RadioButton>())
             {
                 swatch.IsChecked = (AccentColor)swatch.Tag == Settings.Appearance.Accent;
@@ -324,6 +325,11 @@ public sealed partial class SettingsView : UserControl
         if (MotionStyleBox.SelectedItem is ComboBoxItem { Tag: string style } && Enum.TryParse<MotionStyle>(style, out var ms))
         {
             s.Appearance.MotionStyle = ms;
+        }
+
+        if (TabPositionBox.SelectedItem is ComboBoxItem { Tag: string position } && Enum.TryParse<TabPosition>(position, out var tp))
+        {
+            s.Appearance.TabPosition = tp;
         }
     });
 

@@ -76,7 +76,8 @@ public sealed class WorkspaceController
                 _selected.Focus();
                 if (slide)
                 {
-                    // Like switching Hyprland workspaces: the new tab enters from the side it sits on.
+                    // Like switching Hyprland workspaces: the new tab enters from the side it sits on (from above or
+                    // below when the tabs are stacked in the side panel).
                     var direction = Tabs.IndexOf(_selected) >= Tabs.IndexOf(previous!) ? 1 : -1;
                     _ = SlideAsync(previous!, _selected, direction);
                 }
@@ -208,7 +209,9 @@ public sealed class WorkspaceController
 
     private async Task SlideAsync(TabController outgoing, TabController incoming, int direction)
     {
-        await Motion.SlideAsync(outgoing.Host, incoming.Host, direction, _hostContainer.ActualWidth);
+        var vertical = _services.Settings.Appearance.TabPosition == Core.Settings.TabPosition.Left;
+        var distance = vertical ? _hostContainer.ActualHeight : _hostContainer.ActualWidth;
+        await Motion.SlideAsync(outgoing.Host, incoming.Host, direction, distance, vertical);
         outgoing.FinishHide();
     }
 

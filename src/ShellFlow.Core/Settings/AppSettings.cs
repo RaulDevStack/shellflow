@@ -39,6 +39,16 @@ public enum MotionStyle
     Subtle,
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter<TabPosition>))]
+public enum TabPosition
+{
+    /// <summary>Tabs stacked vertically in a side panel; switching tabs slides up or down.</summary>
+    Left,
+
+    /// <summary>Tabs in the title bar; switching tabs slides sideways.</summary>
+    Top,
+}
+
 [JsonConverter(typeof(JsonStringEnumConverter<CursorStyle>))]
 public enum CursorStyle
 {
@@ -106,6 +116,9 @@ public sealed class AppearanceSettings
 
     /// <summary>How animations look when they are enabled.</summary>
     public MotionStyle MotionStyle { get; set; } = MotionStyle.Fluid;
+
+    /// <summary>Where the tab strip sits.</summary>
+    public TabPosition TabPosition { get; set; } = TabPosition.Left;
 }
 
 public sealed class BehaviorSettings

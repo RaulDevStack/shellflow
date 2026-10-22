@@ -109,18 +109,23 @@ public static class Motion
         element.StartAnimation(move);
     }
 
-    /// <summary>Workspace-style horizontal slide: <paramref name="incoming"/> enters from the side, <paramref name="outgoing"/> leaves.</summary>
-    /// <param name="direction">+1 when moving to a tab on the right, -1 to the left.</param>
-    public static Task SlideAsync(UIElement? outgoing, UIElement incoming, int direction, double width, TimeSpan? duration = null)
+    /// <summary>
+    /// Workspace-style slide: <paramref name="incoming"/> enters from the side (or from above/below when
+    /// <paramref name="vertical"/>), <paramref name="outgoing"/> leaves the opposite way.
+    /// </summary>
+    /// <param name="direction">+1 when moving to a tab further right (or down), -1 to the left (or up).</param>
+    /// <param name="distance">How far to travel: the container's width, or its height when vertical.</param>
+    public static Task SlideAsync(UIElement? outgoing, UIElement incoming, int direction, double distance, bool vertical = false, TimeSpan? duration = null)
     {
         var c = CompositorFor(incoming);
         var time = duration ?? SlideDuration;
-        var distance = (float)Math.Max(width, 1) * Math.Sign(direction == 0 ? 1 : direction);
+        var offset = (float)Math.Max(distance, 1) * Math.Sign(direction == 0 ? 1 : direction);
+        var start = vertical ? new Vector3(0, offset, 0) : new Vector3(offset, 0, 0);
 
         var enter = c.CreateVector3KeyFrameAnimation();
         enter.Target = "Translation";
         enter.Duration = time;
-        enter.InsertKeyFrame(0f, new Vector3(distance, 0, 0));
+        enter.InsertKeyFrame(0f, start);
         enter.InsertKeyFrame(1f, Vector3.Zero, Overshoot(c));
         incoming.Translation = Vector3.Zero;
         incoming.StartAnimation(enter);
@@ -131,7 +136,7 @@ public static class Motion
             leave.Target = "Translation";
             leave.Duration = time;
             leave.InsertKeyFrame(0f, Vector3.Zero);
-            leave.InsertKeyFrame(1f, new Vector3(-distance, 0, 0), Overshoot(c));
+            leave.InsertKeyFrame(1f, -start, Overshoot(c));
             outgoing.StartAnimation(leave);
         }
 

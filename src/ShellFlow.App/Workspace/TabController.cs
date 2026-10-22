@@ -118,7 +118,7 @@ public sealed partial class TabController : INotifyPropertyChanged
                 Host.Refresh();
             }
 
-            OnPropertyChanged(nameof(IndicatorOpacity));
+            RaiseIndicatorChanged();
         }
     }
 
@@ -130,7 +130,7 @@ public sealed partial class TabController : INotifyPropertyChanged
         _isSelected = false;
         Host.IsHitTestVisible = false;
         Microsoft.UI.Xaml.Controls.Canvas.SetZIndex(Host, 0);
-        OnPropertyChanged(nameof(IndicatorOpacity));
+        RaiseIndicatorChanged();
     }
 
     public void FinishHide()
@@ -143,15 +143,43 @@ public sealed partial class TabController : INotifyPropertyChanged
     }
 
     /// <summary>Accent underline under the selected tab (a non-color cue in addition to the raised background).</summary>
-    public double IndicatorOpacity => _isSelected ? 1 : 0;
+    public double IndicatorOpacity => _isSelected && !_inSidePanel ? 1 : 0;
 
-    /// <summary>Width of this tab in the strip; tabs shrink together when there are many (set by the view).</summary>
+    /// <summary>Accent bar at the left edge of the selected tab when the tabs are in the side panel.</summary>
+    public double SideIndicatorOpacity => _isSelected && _inSidePanel ? 1 : 0;
+
+    /// <summary>True when the tab strip is the vertical side panel rather than the title bar (set by the view).</summary>
+    public bool InSidePanel
+    {
+        get => _inSidePanel;
+        set
+        {
+            if (_inSidePanel != value)
+            {
+                _inSidePanel = value;
+                RaiseIndicatorChanged();
+            }
+        }
+    }
+
+    private bool _inSidePanel;
+
+    private void RaiseIndicatorChanged()
+    {
+        OnPropertyChanged(nameof(IndicatorOpacity));
+        OnPropertyChanged(nameof(SideIndicatorOpacity));
+    }
+
+    /// <summary>
+    /// Width of this tab in the strip; tabs shrink together when there are many (set by the view). NaN in the side
+    /// panel, where tabs fill the panel's width.
+    /// </summary>
     public double TabWidth
     {
         get => _tabWidth;
         set
         {
-            if (Math.Abs(_tabWidth - value) > 0.5)
+            if (double.IsNaN(value) != double.IsNaN(_tabWidth) || Math.Abs(_tabWidth - value) > 0.5)
             {
                 _tabWidth = value;
                 OnPropertyChanged();

@@ -59,6 +59,11 @@ public static class SettingsValidator
             settings.Appearance.MotionStyle = MotionStyle.Fluid;
         }
 
+        if (!Enum.IsDefined(settings.Appearance.TabPosition))
+        {
+            settings.Appearance.TabPosition = TabPosition.Left;
+        }
+
         if (settings.DefaultStartingDirectory is { } dir && (string.IsNullOrWhiteSpace(dir) || dir.Length > 1024))
         {
             settings.DefaultStartingDirectory = null;

@@ -37,6 +37,7 @@ public sealed partial class MainView : UserControl
         NewTabButtons.SizeChanged += (_, _) => UpdateTabSizing();
         _workspace.Tabs.CollectionChanged += (_, _) => DispatcherQueue.TryEnqueue(UpdateTabSizing);
         TabStrip.AddHandler(PointerWheelChangedEvent, new PointerEventHandler(OnTabStripWheel), handledEventsToo: true);
+        ApplyTabPosition();
 
         // Sliding tabs must not draw over the title bar or status bar.
         TabHostContainer.SizeChanged += (_, e) => TabHostContainer.Clip = new Microsoft.UI.Xaml.Media.RectangleGeometry
@@ -100,7 +101,9 @@ public sealed partial class MainView : UserControl
 
     /// <summary>Elements in the title bar row that must receive clicks instead of dragging the window.</summary>
     public IEnumerable<FrameworkElement> InteractiveTitleBarElements =>
-        Palette.IsOpen ? [TitleBar] : [WorkspaceButton, TabArea, Toolbar];
+        Palette.IsOpen ? [TitleBar] : TabsInSidePanel ? [WorkspaceButton, Toolbar] : [WorkspaceButton, TabArea, Toolbar];
+
+    private bool TabsInSidePanel => _tabPosition == TabPosition.Left;
 
     public UIElement TitleBarElement => TitleBar;
 
@@ -488,20 +491,37 @@ public sealed partial class MainView : UserControl
     /// </summary>
     private void UpdateTabSizing()
     {
-        var column = TitleBar.ColumnDefinitions[2].ActualWidth;
-        if (column <= 0)
-        {
-            return;
-        }
-
-        var available = Math.Max(0, column - NewTabButtons.ActualWidth - 4);
-        TabStrip.MaxWidth = available;
-
-        var count = Math.Max(1, _workspace.Tabs.Count);
-        var width = Math.Clamp(Math.Floor((available / count) - TabSpacing), TabMinWidth, TabMaxWidth);
         foreach (var tab in _workspace.Tabs)
         {
-            tab.TabWidth = width;
+            tab.InSidePanel = TabsInSidePanel;
+        }
+
+        if (TabsInSidePanel)
+        {
+            // Stacked tabs simply fill the side panel's width; the list scrolls vertically.
+            TabStrip.MaxWidth = double.PositiveInfinity;
+            foreach (var tab in _workspace.Tabs)
+            {
+                tab.TabWidth = double.NaN;
+            }
+        }
+        else
+        {
+            var column = TitleBar.ColumnDefinitions[2].ActualWidth;
+            if (column <= 0)
+            {
+                return;
+            }
+
+            var available = Math.Max(0, column - NewTabButtons.ActualWidth - 4);
+            TabStrip.MaxWidth = available;
+
+            var count = Math.Max(1, _workspace.Tabs.Count);
+            var width = Math.Clamp(Math.Floor((available / count) - TabSpacing), TabMinWidth, TabMaxWidth);
+            foreach (var tab in _workspace.Tabs)
+            {
+                tab.TabWidth = width;
+            }
         }
 
         if (_workspace.SelectedTab is { } selected)
@@ -515,6 +535,97 @@ public sealed partial class MainView : UserControl
             });
         }
 
+        InteractiveRegionsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private TabPosition? _tabPosition;
+
+    /// <summary>
+    /// Puts the tab area where Appearance.TabPosition says: stacked in the side panel next to the workspace, or as a
+    /// horizontal strip in the title bar's free column.
+    /// </summary>
+    private void ApplyTabPosition()
+    {
+        var position = _services.Settings.Appearance.TabPosition;
+        if (_tabPosition == position)
+        {
+            return;
+        }
+
+        _tabPosition = position;
+        var side = position == TabPosition.Left;
+
+        // FrameworkElement.Parent is not reliable before the first layout pass, so detach from both possible hosts.
+        BodyGrid.Children.Remove(TabArea);
+        TitleBar.Children.Remove(TabArea);
+        TabArea.RowDefinitions.Clear();
+        TabArea.ColumnDefinitions.Clear();
+
+        // Detach the items while the panel and container style change so every tab container is rebuilt with them.
+        _syncingSelection = true;
+        TabStrip.ItemsSource = null;
+        _syncingSelection = false;
+
+        if (side)
+        {
+            TabArea.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            TabArea.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            TabArea.Width = 210;
+            TabArea.Margin = new Thickness(8, 2, 2, 6);
+            TabArea.HorizontalAlignment = HorizontalAlignment.Stretch;
+            Grid.SetColumn(TabArea, 0);
+
+            Grid.SetRow(NewTabButtons, 0);
+            Grid.SetColumn(NewTabButtons, 0);
+            NewTabButtons.Margin = new Thickness(0, 0, 0, 4);
+            NewTabButtons.VerticalAlignment = VerticalAlignment.Stretch;
+
+            Grid.SetRow(TabStrip, 1);
+            Grid.SetColumn(TabStrip, 0);
+            TabStrip.Height = double.NaN;
+            TabStrip.VerticalAlignment = VerticalAlignment.Top;
+            TabStrip.ItemsPanel = (ItemsPanelTemplate)Resources["SideTabsPanel"];
+            TabStrip.ItemContainerStyle = (Style)Application.Current.Resources["SfSideTabItemStyle"];
+            ScrollViewer.SetHorizontalScrollMode(TabStrip, ScrollMode.Disabled);
+            ScrollViewer.SetHorizontalScrollBarVisibility(TabStrip, ScrollBarVisibility.Disabled);
+            ScrollViewer.SetVerticalScrollMode(TabStrip, ScrollMode.Enabled);
+            ScrollViewer.SetVerticalScrollBarVisibility(TabStrip, ScrollBarVisibility.Auto);
+
+            BodyGrid.Children.Insert(0, TabArea);
+            WorkspaceArea.Margin = new Thickness(4, 0, 6, 0);
+        }
+        else
+        {
+            TabArea.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            TabArea.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            TabArea.Width = double.NaN;
+            TabArea.Margin = new Thickness(0);
+            TabArea.HorizontalAlignment = HorizontalAlignment.Left;
+            Grid.SetColumn(TabArea, 2);
+
+            Grid.SetRow(NewTabButtons, 0);
+            Grid.SetColumn(NewTabButtons, 1);
+            NewTabButtons.Margin = new Thickness(2, 0, 0, 0);
+            NewTabButtons.VerticalAlignment = VerticalAlignment.Center;
+
+            Grid.SetRow(TabStrip, 0);
+            Grid.SetColumn(TabStrip, 0);
+            TabStrip.Height = 34;
+            TabStrip.VerticalAlignment = VerticalAlignment.Center;
+            TabStrip.ItemsPanel = (ItemsPanelTemplate)Resources["TopTabsPanel"];
+            TabStrip.ItemContainerStyle = (Style)Application.Current.Resources["SfTabItemStyle"];
+            ScrollViewer.SetHorizontalScrollMode(TabStrip, ScrollMode.Enabled);
+            ScrollViewer.SetHorizontalScrollBarVisibility(TabStrip, ScrollBarVisibility.Hidden);
+            ScrollViewer.SetVerticalScrollMode(TabStrip, ScrollMode.Disabled);
+            ScrollViewer.SetVerticalScrollBarVisibility(TabStrip, ScrollBarVisibility.Disabled);
+
+            TitleBar.Children.Add(TabArea);
+            WorkspaceArea.Margin = new Thickness(6, 0, 6, 0);
+        }
+
+        TabStrip.ItemsSource = _workspace.Tabs;
+        UpdateTabSizing();
+        SyncTabStripSelection();
         InteractiveRegionsChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -1048,6 +1159,7 @@ public sealed partial class MainView : UserControl
     private void OnSettingsChanged()
     {
         _services.Theme.Apply(_services.Settings.Appearance);
+        ApplyTabPosition();
         ApplyRendererOptions();
         BuildProfileMenu();
         UpdateToolTips();
